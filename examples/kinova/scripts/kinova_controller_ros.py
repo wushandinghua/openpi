@@ -4,7 +4,9 @@ import rospy
 import moveit_commander
 import moveit_msgs
 import numpy as np
-from examples.kinova.constants import GRIPPER_WIDTH_MAX, GRIPPER_JOINT_MAX
+
+GRIPPER_WIDTH_MAX = 0.085
+GRIPPER_JOINT_MAX, GRIPPER_JOINT_MIN = 0.79301, 0.00698
 
 class KinovaControllerRos:
     def __init__(self, init_node=True):
@@ -13,6 +15,7 @@ class KinovaControllerRos:
         self.robot_name = "gen3"
         self.max_gripper_width = GRIPPER_WIDTH_MAX
         self.max_gripper_joint = GRIPPER_JOINT_MAX
+        self.min_gripper_joint = GRIPPER_JOINT_MIN
         self.is_init_success = False
         self.relative_max_joint_delta = np.array([0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2])
         self.max_joint_delta = self.relative_max_joint_delta.max()
@@ -87,7 +90,8 @@ class KinovaControllerRos:
 
     def get_gripper_state(self):
         if self.is_gripper_present:
-            return self.gripper_group.get_current_joint_values() / self.max_gripper_joint * self.max_gripper_width
+            print(self.gripper_group.get_current_joint_values())
+            return (1-(abs(self.gripper_group.get_current_joint_values()[-1])-self.min_gripper_joint) / (self.max_gripper_joint-self.min_gripper_joint)) * self.max_gripper_width
         else:
             rospy.logwarn("Gripper is not present.")
             return None 
@@ -112,7 +116,7 @@ class KinovaControllerRos:
         self.arm_group.set_max_velocity_scaling_factor(speed_limit)
         
         try:
-            self.arm.group.set_joint_value_target(joint_positions)
+            self.arm_group.set_joint_value_target(joint_positions)
             
         except Exception as e:
             rospy.logerr(f"[move_to_joint]Failed to move to joint positions: {str(e)}")
@@ -127,8 +131,8 @@ class KinovaControllerRos:
         joint velocity control
         '''
         joint_delta = self.joint_velocity_to_delta(joint_velocities)
-        joint_positions = list(joint_delta) + self.get_joint_states()
-        return self.joint_contorl(joint_positions, speed_limit=speed_limit)
+        joint_positions = list(joint_delta + np.array(self.get_joint_states()))
+        return self.set_joint_positions(joint_positions, speed_limit=speed_limit)
 
     def set_gripper_width(self, relative_position, type = "meter"):
         """
@@ -154,8 +158,8 @@ class KinovaControllerRos:
                 True,
             ) 
         elif type == "meter":
-            val = gripper_joint.move(
-                relative_position / self.max_gripper_width * self.max_gripper_joint,
+            joint = self.max_gripper_joint - (relative_position / self.max_gripper_width * (self.max_gripper_joint-self.min_gripper_joint))
+            val = gripper_joint.move(joint,
                 True,
             )
 
@@ -185,26 +189,28 @@ if __name__ == "__main__":
     arm = KinovaControllerRos()
     
     # Example: Get state
-    rospy.sleep(1)
-    joints, gripper = arm.get_current_state()
-    print("current joint positions: {}".format(joints))
-    print("current gripper width: {:.3f}m".format(gripper))
+    # rospy.sleep(1)
+    # joints, gripper = arm.get_current_state()
+    # print("current joint positions: {}".format(joints))
+    # print("current gripper width: {:.3f}m".format(gripper))
     
-    # Example: Move arm with joint positions
-    target_positions = [0.0, 0.5, 0.0, 1.57, 0.0, 0.0, 0.0]
-    success = arm.set_joint_positions(target_positions, move_time=3.0)
-    if success:
-        print("setting joint positions successed")
-    else:
-        print("setting joint positions failed")
+    # # Example: Move arm with joint positions
+    # # target_positions = reset_position
+    # # success = arm.set_joint_positions(target_positions)
+    # # if success:
+    # #     print("setting joint positions successed")
+    # # else:
+    # #     print("setting joint positions failed")
 
-    # Example: Move arm with joint velocities
-    target_velocities = [0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-    success = arm.set_joint_velocities(target_velocities, duration=0.5)
-    if success:
-        print("setting joint velocities successed")
-    else:
-        print("setting joint velocities failed")
+    # # Example: Move arm with joint velocities
+    # target_velocities = [0.2, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    # success = arm.set_joint_velocities(target_velocities)
+    # if success:
+    #     print("setting joint velocities successed")
+    # else:
+    #     print("setting joint velocities failed")
 
-    # Example: Set gripper width
+    # # Example: Set gripper width
     arm.set_gripper_width(0.04)
+    # print("current gripper width: {:.3f}m".format(gripper))
+    # rospy.spin()
