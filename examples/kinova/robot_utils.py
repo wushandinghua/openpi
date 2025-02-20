@@ -8,6 +8,7 @@ import sys
 sys.path.append("../../")
 
 from examples.kinova import constants
+from sensor_msgs.msg import JointState
 from realsense2_camera.msg import RGBGrayscaleImage
 from cv_bridge import CvBridge
 import numpy as np
@@ -22,7 +23,7 @@ class ImageRecorder:
         self.camera_names = [constants.CAM_EXTERIOR,  constants.CAM_WRIST]
 
         if init_node:
-            rospy.init_node("image_recorder", anonymous=True)
+            rospy.init_node("pi0", anonymous=True)
         for cam_name in self.camera_names:
             setattr(self, f"{cam_name}_rgb_image", None)
             setattr(self, f"{cam_name}_depth_image", None)
@@ -97,7 +98,50 @@ class ImageRecorder:
             print(f"{cam_name} {image_freq=:.2f}")
         print()
 
-#if __name__ == "__main__":
+class Kinova:
+    def __init__(self, init_node=True, is_debug=False):
+        self.is_debug = is_debug
+
+        if init_node:
+            rospy.init_node("pi0", anonymous=True)
+
+        rospy.Subscriber(f"/kinova_controller_ros/joint_states", JointState, self.robot_state_cb)
+        self.position_command_publisher = rospy.Publisher("position_joint_command", JointState, queue_size=1)
+        self.velocity_command_publisher = rospy.Publisher("position_velocity_command", JointState, queue_size=1)
+
+    def robot_state_cb(self, data):
+        self.qpos = data.position
+        self.qvel = data.velocity
+        self.effort = data.effort
+        self.data = data
+
+    def set_joint_positions(self, positions):
+        data = JointState()
+        data.positions = positions
+        self.position_command_publisher.publish(data)
+    
+    def set_joint_velocities(self, velocities):
+        data = JointState()
+        data.velocity = velocities
+        self.velocity_command_publisher.publish(data)
+
+if __name__ == "__main__":
+    robot = Kinova()
+    states = robot.qpos
+    print('current state:', states)
+
+    # Example: Move arm with joint positions
+    target_positions = [1.1717908796348647e-05, -0.35005974211768365, 
+                        3.1400381664615136, -2.54007670871461, -7.084008499624872e-05, 
+                        -0.8700355533690383, 1.5699754073888796, 0.06]
+    robot.set_joint_positions(target_positions)
+    print("setting position finished")
+
+    # Example: Move arm with joint velocities
+    target_velocities = [0.2, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.04]
+    robot.set_joint_velocities(target_velocities)
+    print("setting velocities finished")
+
 #    image_recorder = ImageRecorder(init_node=True)
 #    images = image_recorder.get_images()
 #    base_path = '/home/cuhk/quebinbin/vla/pi/openpi/examples/kinova'

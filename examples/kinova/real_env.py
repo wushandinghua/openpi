@@ -6,7 +6,6 @@ import numpy as np
 
 from examples.kinova import constants
 from examples.kinova import robot_utils
-from examples.kinova.scripts.kinova_controller import KinovaController
 
 
 class RealEnv:
@@ -28,7 +27,7 @@ class RealEnv:
         self._reset_position = reset_position[:7] if reset_position else constants.DEFAULT_RESET_POSITION
 
         # new kinova controller
-        self.robot = KinovaController(init_node)
+        self.robot = robot_utils.Kinova(init_node)
 
         if setup_robots:
             self.setup_robots()
@@ -39,11 +38,12 @@ class RealEnv:
         # reboot robot
         self.robot.set_joint_positions(self._reset_position)
         gripper_width = constants.GRIPPER_POSITION_UNNORMALIZE_FN(0)
-        self.robot.set_gripper_width(gripper_width)
+        command = (np.array(self._reset_position) + np.array([gripper_width])).tolist()
+        self.robot.set_joint_positions(command)
         time.sleep(constants.DT)
 
     def get_qpos(self):
-        positions = self.robot.get_joint_positions()
+        positions = self.robot.qpos
         arm_qpos = positions[:7]
         gripper_qpos = [
             constants.GRIPPER_POSITION_NORMALIZE_FN(positions[7])
@@ -75,10 +75,10 @@ class RealEnv:
         assert action.shape[-1] == 8
         joint_velocities = action[:-1]
         joint_velocities = np.clip(joint_velocities, -1, 1).tolist()
-        self.robot.set_joint_speeds(joint_velocities)
         gridder_width_relative = 1.0 if action[-1] > 0.5 else 0
         gripper_width = constants.GRIPPER_POSITION_UNNORMALIZE_FN(gridder_width_relative)
-        self.robot.set_gripper_width(gripper_width)
+        command = (np.array(joint_velocities) + np.array([gripper_width])).tolist()
+        self.robot.set_joint_velocities(command)
         time.sleep(constants.DT)
         return dm_env.TimeStep(
             step_type=dm_env.StepType.MID, reward=self.get_reward(), discount=None, observation=self.get_observation()
