@@ -73,8 +73,11 @@ class RealEnv:
     def step(self, action):
         # to match pi0-fast-droid model
         assert action.shape[-1] == 8
-        self.robot.set_joint_speeds(action[:-1])
-        gripper_width = constants.GRIPPER_POSITION_UNNORMALIZE_FN(action[-1])
+        joint_velocities = action[:-1]
+        joint_velocities = np.clip(joint_velocities, -1, 1).tolist()
+        self.robot.set_joint_speeds(joint_velocities)
+        gridder_width_relative = 1.0 if action[-1] > 0.5 else 0
+        gripper_width = constants.GRIPPER_POSITION_UNNORMALIZE_FN(gridder_width_relative)
         self.robot.set_gripper_width(gripper_width)
         time.sleep(constants.DT)
         return dm_env.TimeStep(

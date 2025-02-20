@@ -7,8 +7,8 @@ import numpy as np
 import pyrealsense2 as rs         # Intel RealSense cross-platform open-source API
 import rospy
 
-from kinova.msg import RGBGrayscaleImage
-from kinova.constants import CAM_EXTERIOR, CAM_WRIST
+from realsense2_camera.msg import RGBGrayscaleImage
+CAM_EXTERIOR, CAM_WRIST = "cam_exterior", "cam_wrist"
 
 
 TIMEOUT_MS = 100
@@ -18,7 +18,7 @@ cv_bridge = CvBridge()
 rospy.init_node('realsense_publisher')
 
 camera_names = [CAM_WRIST, CAM_EXTERIOR]
-camera_sns = ['243522071790', '128422272318']
+camera_sns = ['243522071790', '250122073394']
 cam_dict = dict(zip(camera_sns,camera_names))
 mean_intensity_set_point_config = { # NOTE these numbers are specific to your lighting setup
     CAM_WRIST: 500,
@@ -60,7 +60,7 @@ def get_profiles():
                         color_profiles.append((w, h, fps, fmt))
                     else:
                         depth_profiles.append((w, h, fps, fmt))
-
+print(device_ids)
 missing_cams = [camera_names[i] for i, c in enumerate(camera_sns) if c not in device_ids]
 if missing_cams:
     raise Exception(f"Cameras missing:{missing_cams}")

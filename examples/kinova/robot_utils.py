@@ -1,14 +1,18 @@
+#!/usr/bin/env python
 # Ignore lint errors because this file is mostly copied from ACT (https://github.com/tonyzhaozh/act).
 # ruff: noqa
 from collections import deque
 import time
+import os
+import sys
+sys.path.append("../../")
 
-from examples.kinova.msg import RGBGrayscaleImage
+from examples.kinova import constants
+from realsense2_camera.msg import RGBGrayscaleImage
 from cv_bridge import CvBridge
 import numpy as np
 import rospy
-
-from examples.kinova import constants
+import cv2
 
 
 class ImageRecorder:
@@ -73,9 +77,11 @@ class ImageRecorder:
         for cam_name in self.camera_names:
             while getattr(self, f"{cam_name}_timestamp") <= self.cam_last_timestamps[cam_name]:
                 time.sleep(0.00001)
-            rgb_image = getattr(self, f"{cam_name}_rgb_image")
+            gbr_image = getattr(self, f"{cam_name}_rgb_image")
             depth_image = getattr(self, f"{cam_name}_depth_image")
             self.cam_last_timestamps[cam_name] = getattr(self, f"{cam_name}_timestamp")
+            # bgr to rgb
+            rgb_image = cv2.cvtColor(gbr_image, cv2.COLOR_BGR2RGB)
             image_dict[cam_name] = rgb_image
             image_dict[f"{cam_name}_depth"] = depth_image
         return image_dict
@@ -90,3 +96,12 @@ class ImageRecorder:
             image_freq = 1 / dt_helper(getattr(self, f"{cam_name}_timestamps"))
             print(f"{cam_name} {image_freq=:.2f}")
         print()
+
+#if __name__ == "__main__":
+#    image_recorder = ImageRecorder(init_node=True)
+#    images = image_recorder.get_images()
+#    base_path = '/home/cuhk/quebinbin/vla/pi/openpi/examples/kinova'
+#    import cv2 as cv
+#    cv.imwrite(f'{base_path}/cam_exterior.png', images['cam_exterior'])
+#    cv.imwrite(f'{base_path}/cam_wrist.png', images['cam_wrist'])
+#    print(images)
