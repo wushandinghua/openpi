@@ -101,23 +101,25 @@ class ImageRecorder:
 class Kinova:
     def __init__(self, init_node=True, is_debug=False):
         self.is_debug = is_debug
+        self.qpos = [0.0] * 8
 
         if init_node:
             rospy.init_node("pi0", anonymous=True)
 
-        rospy.Subscriber(f"/kinova_controller_ros/joint_states", JointState, self.robot_state_cb)
-        self.position_command_publisher = rospy.Publisher("position_joint_command", JointState, queue_size=1)
-        self.velocity_command_publisher = rospy.Publisher("position_velocity_command", JointState, queue_size=1)
+        rospy.Subscriber("/pi0/joint_states", JointState, self.robot_state_cb)
+        self.position_command_publisher = rospy.Publisher("/pi0/joint_position_command", JointState, queue_size=1)
+        self.velocity_command_publisher = rospy.Publisher("/pi0/joint_velocity_command", JointState, queue_size=1)
+        time.sleep(0.5)
 
     def robot_state_cb(self, data):
-        self.qpos = data.position
-        self.qvel = data.velocity
-        self.effort = data.effort
+        self.qpos = list(data.position)
+        self.qvel = list(data.velocity)
+        self.effort = list(data.effort)
         self.data = data
 
     def set_joint_positions(self, positions):
         data = JointState()
-        data.positions = positions
+        data.position = positions
         self.position_command_publisher.publish(data)
     
     def set_joint_velocities(self, velocities):
@@ -125,23 +127,27 @@ class Kinova:
         data.velocity = velocities
         self.velocity_command_publisher.publish(data)
 
-if __name__ == "__main__":
-    robot = Kinova()
-    states = robot.qpos
-    print('current state:', states)
-
-    # Example: Move arm with joint positions
-    target_positions = [1.1717908796348647e-05, -0.35005974211768365, 
-                        3.1400381664615136, -2.54007670871461, -7.084008499624872e-05, 
-                        -0.8700355533690383, 1.5699754073888796, 0.06]
-    robot.set_joint_positions(target_positions)
-    print("setting position finished")
-
-    # Example: Move arm with joint velocities
-    target_velocities = [0.2, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.04]
-    robot.set_joint_velocities(target_velocities)
-    print("setting velocities finished")
-
+#if __name__ == "__main__":
+#    robot = Kinova()
+#    time.sleep(0.5)
+#    states = robot.qpos
+#    print('current state:', states)
+#
+#    # Example: Move arm with joint positions
+#    target_positions = [-0.05114174767722801, -0.32670062356438123, -3.067645192233781, -1.9892705467878438, 0.01766729831947718, -1.091837990020724, 1.7992638567067234, 0.04724378143654149]
+#    robot.set_joint_positions(target_positions)
+#    print("setting position finished")
+#    time.sleep(5)
+#
+#    # Example: Move arm with joint velocities
+#    target_velocities = [0.2, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.06]
+#    robot.set_joint_velocities(target_velocities)
+#    print("setting velocities finished")
+#    time.sleep(0.5)
+#    states = robot.qpos
+#    print('current state:', states)
+#    time.sleep(1)
+#
 #    image_recorder = ImageRecorder(init_node=True)
 #    images = image_recorder.get_images()
 #    base_path = '/home/cuhk/quebinbin/vla/pi/openpi/examples/kinova'

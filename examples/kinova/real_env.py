@@ -1,5 +1,6 @@
 import collections
 import time
+import copy
 from typing import Optional, List
 import dm_env
 import numpy as np
@@ -38,7 +39,8 @@ class RealEnv:
         # reboot robot
         self.robot.set_joint_positions(self._reset_position)
         gripper_width = constants.GRIPPER_POSITION_UNNORMALIZE_FN(0)
-        command = (np.array(self._reset_position) + np.array([gripper_width])).tolist()
+        command = copy.deepcopy(self._reset_position)
+        command.append(gripper_width)
         self.robot.set_joint_positions(command)
         time.sleep(constants.DT)
 
@@ -77,8 +79,8 @@ class RealEnv:
         joint_velocities = np.clip(joint_velocities, -1, 1).tolist()
         gridder_width_relative = 1.0 if action[-1] > 0.5 else 0
         gripper_width = constants.GRIPPER_POSITION_UNNORMALIZE_FN(gridder_width_relative)
-        command = (np.array(joint_velocities) + np.array([gripper_width])).tolist()
-        self.robot.set_joint_velocities(command)
+        joint_velocities.append(gripper_width)
+        self.robot.set_joint_velocities(joint_velocities)
         time.sleep(constants.DT)
         return dm_env.TimeStep(
             step_type=dm_env.StepType.MID, reward=self.get_reward(), discount=None, observation=self.get_observation()
