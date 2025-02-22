@@ -4,6 +4,7 @@ import einops
 from openpi_client import image_tools
 from openpi_client.runtime import environment as _environment
 from typing_extensions import override
+import numpy as np
 
 from examples.kinova import real_env as _real_env
 from examples.kinova.constants import CAM_WRIST, CAM_EXTERIOR
@@ -57,8 +58,8 @@ class KinovaEnvironment(_environment.Environment):
         return {
             "observation/exterior_image_1_left": obs["images"][f"{CAM_EXTERIOR}"],
             "observation/wrist_image_left": obs["images"][f"{CAM_WRIST}"],
-            "observation/joint_position": obs["qpos"][:-1],
-            "observation/gripper_position": obs["qpos"][-1],
+            "observation/joint_position": np.array(obs["qpos"][:-1]),
+            "observation/gripper_position": np.array([obs["qpos"][-1]]),
             "prompt": self.instruction,
         }
 

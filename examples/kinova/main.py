@@ -6,7 +6,8 @@ from openpi_client import websocket_client_policy as _websocket_client_policy
 from openpi_client.runtime import runtime as _runtime
 from openpi_client.runtime.agents import policy_agent as _policy_agent
 import tyro
-
+import sys
+sys.path.append("./")
 from examples.kinova import env as _env
 
 
@@ -15,10 +16,11 @@ class Args:
     host: str = "0.0.0.0"
     port: int = 8000
 
-    action_horizon: int = 25
+    action_horizon: int = 10
 
     num_episodes: int = 1
     max_episode_steps: int = 1000
+    instruction: str = "pick up the apple"
 
 
 def main(args: Args) -> None:
