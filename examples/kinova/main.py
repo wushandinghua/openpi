@@ -9,6 +9,7 @@ import tyro
 import sys
 sys.path.append("./")
 from examples.kinova import env as _env
+#from examples.kinova import video_display as _video_display
 
 
 @dataclasses.dataclass
@@ -29,6 +30,8 @@ def main(args: Args) -> None:
         port=args.port,
     )
     logging.info(f"Server metadata: {ws_client_policy.get_server_metadata()}")
+    #cam_wrist = _video_display.VideoDisplay("observation/wrist_image_left")
+    #cam_exterior = _video_display.VideoDisplay("observation/exterior_image_1_left")
 
     metadata = ws_client_policy.get_server_metadata()
     runtime = _runtime.Runtime(
@@ -39,8 +42,10 @@ def main(args: Args) -> None:
                 action_horizon=args.action_horizon,
             )
         ),
+        #subscribers=[VideoDisplay("observation/wrist_image_left"), VideoDisplay("observation/exterior_image_1_left")],
+        #subscribers=[cam_wrist],
         subscribers=[],
-        max_hz=50,
+        max_hz=15,
         num_episodes=args.num_episodes,
         max_episode_steps=args.max_episode_steps,
     )
