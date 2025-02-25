@@ -1,3 +1,5 @@
+import matplotlib
+matplotlib.use("Qt5Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 from openpi_client.runtime import subscriber as _subscriber
