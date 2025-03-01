@@ -43,6 +43,8 @@ class RealEnv:
         command.append(gripper_width)
         self.robot.set_joint_positions(command)
         time.sleep(constants.DT)
+        time.sleep(15)
+        print(f"real env setup cmd:{command}, sleep time:{constants.DT}")
 
     def get_qpos(self):
         positions = self.robot.qpos
@@ -53,7 +55,9 @@ class RealEnv:
         return np.concatenate([arm_qpos, gripper_qpos])
 
     def get_images(self):
-        return self.image_recorder.get_images()
+        images = self.image_recorder.get_images()
+        #return self.image_recorder.get_images()
+        return images
 
     def get_observation(self):
         obs = collections.OrderedDict()
@@ -68,6 +72,7 @@ class RealEnv:
         if not fake:
             # Reboot robot 
             self.setup_robots()
+            print("real env setup finished")
         return dm_env.TimeStep(
             step_type=dm_env.StepType.FIRST, reward=self.get_reward(), discount=None, observation=self.get_observation()
         )
@@ -80,6 +85,7 @@ class RealEnv:
         gridder_width_relative = 1.0 if action[-1] > 0.5 else 0
         gripper_width = constants.GRIPPER_POSITION_UNNORMALIZE_FN(gridder_width_relative)
         joint_velocities.append(gripper_width)
+        print("env.step cmd:", joint_velocities)
         self.robot.set_joint_velocities(joint_velocities)
         time.sleep(constants.DT)
         return dm_env.TimeStep(

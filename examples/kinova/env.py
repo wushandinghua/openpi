@@ -20,7 +20,7 @@ class KinovaEnvironment(_environment.Environment):
         render_width: int = 224,
         instruction: str = None
     ) -> None:
-        self._env = _real_env.make_real_env(init_node=True, reset_position=reset_position)
+        self._env = _real_env.make_real_env(init_node=True, reset_position=reset_position, setup_robots=False)
         self._render_height = render_height
         self._render_width = render_width
 
@@ -45,12 +45,18 @@ class KinovaEnvironment(_environment.Environment):
             if "_depth" in k:
                 del obs["images"][k]
 
+        #print("cam wrist image shape before:", np.array(obs["images"][f"{CAM_WRIST}"]).shape)
+        #print("cam exterior image shape before:", np.array(obs["images"][f"{CAM_WRIST}"]).shape)
         for cam_name in obs["images"]:
-            img = image_tools.convert_to_uint8(
-                image_tools.resize_with_pad(obs["images"][cam_name], self._render_height, self._render_width)
-            )
-            obs["images"][cam_name] = einops.rearrange(img, "h w c -> c h w")
+            #img = image_tools.convert_to_uint8(
+            #    image_tools.resize_with_pad(obs["images"][cam_name], self._render_height, self._render_width)
+            #)
+            #obs["images"][cam_name] = einops.rearrange(img, "h w c -> c h w")
+            img = image_tools.resize_with_pad(obs["images"][cam_name], self._render_height, self._render_width)
+            obs["images"][cam_name] = img 
 
+        #print("cam wrist image shape after:", obs["images"][f"{CAM_WRIST}"].shape)
+        #print("cam exterior image shape after:", obs["images"][f"{CAM_WRIST}"].shape)
         # return {
         #     "state": obs["qpos"],
         #     "images": obs["images"],

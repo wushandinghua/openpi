@@ -5,7 +5,7 @@ from collections import deque
 import time
 import os
 import sys
-sys.path.append("../../")
+sys.path.append("./")
 
 from examples.kinova import constants
 from sensor_msgs.msg import JointState
@@ -45,7 +45,7 @@ class ImageRecorder:
         setattr(
             self,
             f"{cam_name}_rgb_image",
-            self.bridge.imgmsg_to_cv2(data.images[0], desired_encoding="bgr8"),
+            self.bridge.imgmsg_to_cv2(data.images[0], desired_encoding="rgb8"),
         )
         # setattr(
         #     self,
@@ -78,11 +78,9 @@ class ImageRecorder:
         for cam_name in self.camera_names:
             while getattr(self, f"{cam_name}_timestamp") <= self.cam_last_timestamps[cam_name]:
                 time.sleep(0.00001)
-            gbr_image = getattr(self, f"{cam_name}_rgb_image")
+            rgb_image = getattr(self, f"{cam_name}_rgb_image")
             depth_image = getattr(self, f"{cam_name}_depth_image")
             self.cam_last_timestamps[cam_name] = getattr(self, f"{cam_name}_timestamp")
-            # bgr to rgb
-            rgb_image = cv2.cvtColor(gbr_image, cv2.COLOR_BGR2RGB)
             image_dict[cam_name] = rgb_image
             image_dict[f"{cam_name}_depth"] = depth_image
         return image_dict
@@ -128,25 +126,25 @@ class Kinova:
         self.velocity_command_publisher.publish(data)
 
 #if __name__ == "__main__":
-#    robot = Kinova()
-#    time.sleep(0.5)
-#    states = robot.qpos
-#    print('current state:', states)
+#    #robot = Kinova()
+#    #time.sleep(0.5)
+#    #states = robot.qpos
+#    #print('current state:', states)
 #
-#    # Example: Move arm with joint positions
-#    target_positions = [-0.05114174767722801, -0.32670062356438123, -3.067645192233781, -1.9892705467878438, 0.01766729831947718, -1.091837990020724, 1.7992638567067234, 0.04724378143654149]
-#    robot.set_joint_positions(target_positions)
-#    print("setting position finished")
-#    time.sleep(5)
+#    ## Example: Move arm with joint positions
+#    #target_positions = [-0.05114174767722801, -0.32670062356438123, -3.067645192233781, -1.9892705467878438, 0.01766729831947718, -1.091837990020724, 1.7992638567067234, 0.04724378143654149]
+#    #robot.set_joint_positions(target_positions)
+#    #print("setting position finished")
+#    #time.sleep(5)
 #
-#    # Example: Move arm with joint velocities
-#    target_velocities = [0.2, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.06]
-#    robot.set_joint_velocities(target_velocities)
-#    print("setting velocities finished")
-#    time.sleep(0.5)
-#    states = robot.qpos
-#    print('current state:', states)
-#    time.sleep(1)
+#    ## Example: Move arm with joint velocities
+#    #target_velocities = [0.2, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.06]
+#    #robot.set_joint_velocities(target_velocities)
+#    #print("setting velocities finished")
+#    #time.sleep(0.5)
+#    #states = robot.qpos
+#    #print('current state:', states)
+#    #time.sleep(1)
 #
 #    image_recorder = ImageRecorder(init_node=True)
 #    images = image_recorder.get_images()
