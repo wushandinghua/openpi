@@ -28,7 +28,7 @@ class RealEnv:
         self._reset_position = reset_position[:7] if reset_position else constants.DEFAULT_RESET_POSITION
 
         # new kinova controller
-        self.robot = robot_utils.Kinova(init_node)
+        self.robot = robot_utils.KinovaV2(init_node)
 
         if setup_robots:
             self.setup_robots()
@@ -43,7 +43,7 @@ class RealEnv:
         command.append(gripper_width)
         self.robot.set_joint_positions(command)
         time.sleep(constants.DT)
-        time.sleep(15)
+        time.sleep(10)
         print(f"real env setup cmd:{command}, sleep time:{constants.DT}")
 
     def get_qpos(self):
@@ -83,8 +83,8 @@ class RealEnv:
         joint_velocities = action[:-1]
         joint_velocities = np.clip(joint_velocities, -1, 1).tolist()
         gridder_width_relative = 1.0 if action[-1] > 0.5 else 0
-        gripper_width = constants.GRIPPER_POSITION_UNNORMALIZE_FN(gridder_width_relative)
-        joint_velocities.append(gripper_width)
+        # gripper_width = constants.GRIPPER_POSITION_UNNORMALIZE_FN(gridder_width_relative)
+        joint_velocities.append(gridder_width_relative)
         print("env.step cmd:", joint_velocities)
         self.robot.set_joint_velocities(joint_velocities)
         time.sleep(constants.DT)
