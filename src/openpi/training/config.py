@@ -502,8 +502,9 @@ _CONFIGS = [
             decay_steps=30_000,
             decay_lr=2.5e-6
         ),
-        batch_size=32,
-        num_workers=2
+        batch_size=128,
+        num_workers=2,
+        fsdp_devices=4
     ),
     TrainConfig(
         name="pi0_kinova_low_mem_finetune",
