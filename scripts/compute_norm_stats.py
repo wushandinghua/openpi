@@ -25,6 +25,16 @@ def create_dataset(config: _config.TrainConfig) -> tuple[_config.DataConfig, _da
     if data_config.repo_id is None:
         raise ValueError("Data config must have a repo_id")
     dataset = _data_loader.create_dataset(data_config, config.model)
+    print(f"Number of episodes selected: {dataset.num_episodes}")
+    print(f"Number of frames selected: {dataset.num_frames}")
+    print(f"\n{dataset[0]['observation.images.cam_exterist'].shape=}")  # (4, c, h, w)
+    print(f"\n{dataset[0]['observation.images.cam_wrist'].shape=}")  # (4, c, h, w)
+    print(f"{dataset[0]['observation.state'].shape=}")  # (6, c)
+    print(f"{dataset[0]['action'].shape=}\n")  # (64, c)
+    print(f"\n{dataset[0]['observation.images.cam_exterist'][0]}") 
+    print(f"\n{dataset[0]['observation.images.cam_wrist'][0]}") 
+    print(f"{dataset[0]['observation.state'][0]}")  # (6, c)
+    print(f"{dataset[0]['action'][0]}\n")  # (64, c)
     dataset = _data_loader.TransformedDataset(
         dataset,
         [
@@ -34,6 +44,17 @@ def create_dataset(config: _config.TrainConfig) -> tuple[_config.DataConfig, _da
             RemoveStrings(),
         ],
     )
+    print(f"Number of episodes selected: {dataset.num_episodes}")
+    print(f"Number of frames selected: {dataset.num_frames}")
+    print(f"\n{dataset[0]['observation/image'].shape=}")  # (4, c, h, w)
+    print(f"\n{dataset[0]['observation/wrist_image'].shape=}")  # (4, c, h, w)
+    print(f"{dataset[0]['observation/state'].shape=}")  # (6, c)
+    print(f"{dataset[0]['actions'].shape=}\n")  # (64, c)
+
+    print(f"\n{dataset[0]['observation/image'][0]}")  # (4, c, h, w)
+    print(f"\n{dataset[0]['observation/wrist_image'][0]}")  # (4, c, h, w)
+    print(f"{dataset[0]['observation/state'][0]}")  # (6, c)
+    print(f"{dataset[0]['actions'][0]}\n")  # (64, c)
     return data_config, dataset
 
 
