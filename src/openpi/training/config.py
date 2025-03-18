@@ -502,12 +502,12 @@ _CONFIGS = [
             decay_steps=30_000,
             decay_lr=2.5e-6
         ),
-        batch_size=256,
-        num_workers=8
+        batch_size=32,
+        num_workers=2
     ),
     TrainConfig(
         name="pi0_kinova_low_mem_finetune",
-        model=pi0.Pi0Config(paligemma_variant="gemma_2b_lora", action_expert_variant="gemma_300m_lora"),
+        model=pi0.Pi0Config(action_horizon=10, paligemma_variant="gemma_2b_lora", action_expert_variant="gemma_300m_lora"),
         data=LeRobotKinovaDataConfig(
             repo_id="qbb/pick_and_put_in_drawer",
             base_config=DataConfig(
