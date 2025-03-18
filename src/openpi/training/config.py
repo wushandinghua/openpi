@@ -301,7 +301,7 @@ class LeRobotKinovaDataConfig(DataConfigFactory):
             inputs=[
                 _transforms.RepackTransform(
                     {
-                        "observation/image": "observation.images.cam_exterist",
+                        "observation/image": "observation.images.cam_exterior",
                         "observation/wrist_image": "observation.images.cam_wrist",
                         "observation/state": "observation.state",
                         "actions": "action",
