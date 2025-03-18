@@ -44,12 +44,14 @@ class VideoDisplay(_subscriber.Subscriber):
 
         #self._ax.set_title(f'joint states:{observation["observation/joint_position"]},{observation["observation/gripper_position"]}')
         for idx in range(len(self._subscriber_name_list)):
-            im = observation[f"observation/{self._subscriber_name_list[idx]}"]
+            # im = observation[f"observation/{self._subscriber_name_list[idx]}"]
+            im = observation[f"observation.images.{self._subscriber_name_list[idx]}"]
             if self._plt_img_list[idx] is None:
                 self._plt_img_list[idx] = self._ax_list[idx].imshow(im)
             else:
                 self._plt_img_list[idx].set_data(im)
-        plt.suptitle(f'joint states:{observation["observation/joint_position"]},{observation["observation/gripper_position"]}')
+        # plt.suptitle(f'joint states:{observation["observation/joint_position"]},{observation["observation/gripper_position"]}')
+        plt.suptitle(f'state:{observation["observation.state"]}')
         plt.pause(0.001)
 
     @override

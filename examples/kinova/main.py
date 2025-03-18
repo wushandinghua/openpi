@@ -8,8 +8,9 @@ from openpi_client.runtime.agents import policy_agent as _policy_agent
 import tyro
 import sys
 sys.path.append("./")
-from examples.kinova import env as _env
+from examples.kinova import env_v1 as _env
 from examples.kinova import video_display as _video_display
+from examples.kinova.constants import CAM_WRIST, CAM_EXTERIOR
 
 
 @dataclasses.dataclass
@@ -30,9 +31,7 @@ def main(args: Args) -> None:
         port=args.port,
     )
     logging.info(f"Server metadata: {ws_client_policy.get_server_metadata()}")
-    #cam_wrist = _video_display.VideoDisplay("observation/wrist_image_left")
-    #cam_exterior = _video_display.VideoDisplay("observation/exterior_image_1_left")
-    cam_subscriber = _video_display.VideoDisplay(["wrist_image_left", "exterior_image_1_left"])
+    cam_subscriber = _video_display.VideoDisplay([CAM_WRIST, CAM_EXTERIOR])
 
     metadata = ws_client_policy.get_server_metadata()
     runtime = _runtime.Runtime(

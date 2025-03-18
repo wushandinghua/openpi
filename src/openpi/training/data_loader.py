@@ -98,7 +98,7 @@ def create_dataset(data_config: _config.DataConfig, model_config: _model.BaseMod
             for key in data_config.action_sequence_keys
         },
         local_files_only=data_config.local_files_only,
-        episodes=[i for i in range(215) if i not in [16, 47]]
+        episodes=[i for i in range(215) if i not in [16, 47, 57]]
     )
 
     if data_config.prompt_from_task:
