@@ -523,6 +523,9 @@ _CONFIGS = [
             paligemma_variant="gemma_2b_lora", action_expert_variant="gemma_300m_lora"
         ).get_freeze_filter(),
         ema_decay=None,
+        batch_size=64,
+        num_workers=2,
+        fsdp_devices=2
     ),
     #
     # Fine-tuning Libero configs.
