@@ -133,8 +133,8 @@ class KinovaRobot:
 
         # connect ros
         try:
-            rospy.init_node("pi0", anonymous=True)
-            rospy.Subscriber(f"/{self.robot_name}/joint_states", JointState, self.robot_state_cb)
+            # rospy.init_node("pi0", anonymous=True)
+            # rospy.Subscriber(f"/{self.robot_name}/joint_states", JointState, self.robot_state_cb)
 
             self.connect()
         except:
