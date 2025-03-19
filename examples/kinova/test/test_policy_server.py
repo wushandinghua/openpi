@@ -14,8 +14,17 @@ def make_droid_example() -> dict:
         "prompt": "do something",
     }
 
+def make_kinova_example() -> dict:
+    """Creates a random input example for the Kinova policy."""
+    return {
+        "observation/state": np.random.rand(8),
+        "observation/image": np.random.randint(256, size=(224, 224, 3), dtype=np.uint8),
+        "observation/wrist_image": np.random.randint(256, size=(224, 224, 3), dtype=np.uint8),
+        "prompt": "do something",
+    }
+
 #example = droid_policy.make_droid_example()
-example = make_droid_example()
+example = make_kinova_example()
 cnt=80
 start_time = time.time()
 for _ in range(cnt):
