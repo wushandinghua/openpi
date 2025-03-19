@@ -498,13 +498,13 @@ _CONFIGS = [
         num_train_steps=30_000,
         lr_schedule=_optimizer.CosineDecaySchedule(
             warmup_steps=1_000,
-            peak_lr=2.5e-5,
+            peak_lr=5e-5,
             decay_steps=30_000,
-            decay_lr=2.5e-6
+            decay_lr=5e-6
         ),
-        batch_size=128,
-        num_workers=2,
-        fsdp_devices=4
+        batch_size=64,
+        num_workers=8,
+        fsdp_devices=2
     ),
     TrainConfig(
         name="pi0_kinova_low_mem_finetune",
@@ -523,9 +523,9 @@ _CONFIGS = [
             paligemma_variant="gemma_2b_lora", action_expert_variant="gemma_300m_lora"
         ).get_freeze_filter(),
         ema_decay=None,
-        batch_size=64,
-        num_workers=2,
-        fsdp_devices=2
+        batch_size=32,
+        num_workers=4,
+        fsdp_devices=1
     ),
     #
     # Fine-tuning Libero configs.
