@@ -1,0 +1,1 @@
+python scripts/main.py --remote_host="192.168.3.101" --remote_port=8000 --instruction="Pick up the orange and put it in the drawer."
