@@ -129,6 +129,8 @@ class KinovaRobot:
         self.max_gripper_width = 0.085 # GRIPPER_WIDTH_MAX
         self.max_gripper_joint = 0.79301 # GRIPPER_JOINT_MAX
         self.min_gripper_joint = 0.00698 # GRIPPER_JOINT_MIN
+        self.max_gripper_sdk_value = 0.99563
+        self.min_gripper_sdk_value = 0.00873
         self.timeout_duration = 20 #seconds
 
         # connect ros
@@ -388,6 +390,8 @@ class KinovaRobot:
 
         joint_positions = action.tolist()[:-1]
         gripper_position = action.tolist()[-1]
+        gripper_position = min(gripper_position, self.max_gripper_sdk_value)
+        gripper_position = max(gripper_position, self.min_gripper_sdk_value)
 
         before_write_t = time.perf_counter()
         self.move_to_target_joint_positions(joint_positions)
