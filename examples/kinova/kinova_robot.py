@@ -335,8 +335,8 @@ class KinovaRobot:
 
     def check_for_end_or_abort(self, e):
         def check(notification, e = e):
-            print("EVENT : " + \
-                Base_pb2.ActionEvent.Name(notification.action_event))
+            # print("EVENT : " + \
+            #     Base_pb2.ActionEvent.Name(notification.action_event))
             if notification.action_event == Base_pb2.ACTION_END \
             or notification.action_event == Base_pb2.ACTION_ABORT:
                 e.set()
@@ -368,10 +368,10 @@ class KinovaRobot:
         finished = e.wait(self.timeout_duration)
         self.arm.Unsubscribe(notification_handle)
 
-        if finished:
-            print("Angular movement completed")
-        else:
-            print("Timeout on action notification wait")
+        # if finished:
+        #     print("Angular movement completed")
+        # else:
+        #     print("Timeout on action notification wait")
         return finished
 
     def move_to_target_gripper_position(self, target_gripper_position):

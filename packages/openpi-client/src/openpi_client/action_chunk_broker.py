@@ -31,7 +31,7 @@ class ActionChunkBroker(_base_policy.BasePolicy):
             self._cur_step = 0
 
         results = tree.map_structure(lambda x: x[self._cur_step, ...], self._last_results)
-        self._cur_step += 1
+        self._cur_step += 5
 
         if self._cur_step >= self._action_horizon:
             self._last_results = None
