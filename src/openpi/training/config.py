@@ -507,6 +507,29 @@ _CONFIGS = [
         fsdp_devices=2
     ),
     TrainConfig(
+        name="pi0_kinova_v1",
+        model=pi0.Pi0Config(action_horizon=10),
+        data=LeRobotKinovaDataConfig(
+            repo_id="qbb/pick_and_put_in_drawer_v1",
+            base_config=DataConfig(
+                local_files_only=True,
+                prompt_from_task=True,
+                action_sequence_keys=("action",)
+            ),
+        ),
+        weight_loader=weight_loaders.CheckpointWeightLoader("s3://openpi-assets/checkpoints/pi0_base/params"),
+        num_train_steps=30_000,
+        lr_schedule=_optimizer.CosineDecaySchedule(
+            warmup_steps=1_000,
+            peak_lr=5e-5,
+            decay_steps=30_000,
+            decay_lr=5e-6
+        ),
+        batch_size=64,
+        num_workers=8,
+        fsdp_devices=2
+    ),
+    TrainConfig(
         name="pi0_kinova_low_mem_finetune",
         model=pi0.Pi0Config(action_horizon=10, paligemma_variant="gemma_2b_lora", action_expert_variant="gemma_300m_lora"),
         data=LeRobotKinovaDataConfig(
