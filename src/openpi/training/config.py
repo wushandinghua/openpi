@@ -550,6 +550,27 @@ _CONFIGS = [
         num_workers=4,
         fsdp_devices=1
     ),
+    TrainConfig(
+        name="pi0_kinova_v1_low_mem_finetune",
+        model=pi0.Pi0Config(action_horizon=10, paligemma_variant="gemma_2b_lora", action_expert_variant="gemma_300m_lora"),
+        data=LeRobotKinovaDataConfig(
+            repo_id="qbb/pick_and_put_in_drawer_v1",
+            base_config=DataConfig(
+                local_files_only=True,  # Set to True for local-only datasets.
+                prompt_from_task=True,
+                action_sequence_keys=("action",)
+            ),
+        ),
+        weight_loader=weight_loaders.CheckpointWeightLoader("s3://openpi-assets/checkpoints/pi0_base/params"),
+        num_train_steps=30_000,
+        freeze_filter=pi0.Pi0Config(
+            paligemma_variant="gemma_2b_lora", action_expert_variant="gemma_300m_lora"
+        ).get_freeze_filter(),
+        ema_decay=None,
+        batch_size=32,
+        num_workers=4,
+        fsdp_devices=1
+    ),
     #
     # Fine-tuning Libero configs.
     #
