@@ -9,4 +9,4 @@ wget https://artifactory.kinovaapps.com/artifactory/generic-public/kortex/API/2.
 uv pip install kortex_api-2.6.0.post3-py3-none-any.whl
 uv pip install rospy
 
-python examples/kinova/main.py --args.host "192.168.3.101" --args.port 8000 --args.instruction "Pick up the orange and put it in the drawer."
+python examples/kinova/main.py --args.host "192.168.3.101" --args.port 8000 --args.instruction "Pick up the orange and put it in the drawer." --args.action_horizon 5
