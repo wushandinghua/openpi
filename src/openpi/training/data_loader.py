@@ -100,7 +100,8 @@ def create_dataset(data_config: _config.DataConfig, model_config: _model.BaseMod
         local_files_only=data_config.local_files_only,
         # episodes=[i for i in range(215) if i not in [16, 47, 57]]
         # episodes=[i for i in range(255) if i not in [31, 114, 124]] # for v1 datasets
-        episodes=[i for i in range(255) if i not in [31, 114, 124] and i <= 130] # for half of v1 datasets
+        # episodes=[i for i in range(255) if i not in [31, 114, 124] and i <= 130] # for half of v1 datasets
+        episodes=[i for i in range(390) if i not in [31, 114, 124]] # for v1 datasets, len 390
     )
 
     if data_config.prompt_from_task:
