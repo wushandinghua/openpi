@@ -94,14 +94,14 @@ def create_dataset(data_config: _config.DataConfig, model_config: _model.BaseMod
         data_config.repo_id,
         # use t+1 when use kinova data, because action = current state when collect data, else use t
         delta_timestamps={
-            key: [(t+1) / dataset_meta.fps for t in range(model_config.action_horizon)]
+            key: [t / dataset_meta.fps for t in range(model_config.action_horizon)]
             for key in data_config.action_sequence_keys
         },
         local_files_only=data_config.local_files_only,
         # episodes=[i for i in range(215) if i not in [16, 47, 57]]
         # episodes=[i for i in range(255) if i not in [31, 114, 124]] # for v1 datasets
         # episodes=[i for i in range(255) if i not in [31, 114, 124] and i <= 130] # for half of v1 datasets
-        episodes=[i for i in range(390) if i not in [31, 114, 124]] # for v1 datasets, len 390
+        # episodes=[i for i in range(390) if i not in [31, 114, 124]] # for v1 datasets, len 390
     )
 
     if data_config.prompt_from_task:

@@ -21,6 +21,7 @@ import openpi.policies.aloha_policy as aloha_policy
 import openpi.policies.droid_policy as droid_policy
 import openpi.policies.libero_policy as libero_policy
 import openpi.policies.kinova_policy as kinova_policy
+import openpi.policies.airbot_policy as Airbot_policy
 import openpi.shared.download as _download
 import openpi.shared.normalize as _normalize
 import openpi.training.optimizer as _optimizer
@@ -364,6 +365,49 @@ class LeRobotKinovaDataConfig(DataConfigFactory):
             data_transforms=data_transforms,
             model_transforms=model_transforms,
         )
+    
+@dataclasses.dataclass(frozen=True)
+class LeRobotAirbotDataConfig(DataConfigFactory):
+    @override
+    def create(self, assets_dirs: pathlib.Path, model_config: _model.BaseModelConfig) -> DataConfig:
+        # Make inputs look like they come from the Aitbot environment
+        repack_transform = _transforms.Group(
+            inputs=[
+                _transforms.RepackTransform(
+                    {
+                        "cam_high": "observation.images.cam_high",
+                        "cam_left_wrist": "observation.images.cam_left_wrist",
+                        "cam_right_wrist": "observation.images.cam_right_wrist",
+                        "state": "observation.state",
+                        "actions": "action",
+                        "prompt": "prompt",
+                    }
+                )
+            ]
+        )
+
+        # Prepare data for policy training
+        # Convert images to uint8 numpy arrays, add masks
+        data_transforms = _transforms.Group(
+            inputs=[Airbot_policy.AirbotInputs(action_dim=model_config.action_dim, model_type=model_config.model_type)],
+            outputs=[Airbot_policy.AirbotOutputs()],
+        )
+        # Use delta actions (not for gripper)
+        delta_action_mask = _transforms.make_bool_mask(6, -1, 6, -1)
+        data_transforms = data_transforms.push(
+            inputs=[_transforms.DeltaActions(delta_action_mask)],
+            outputs=[_transforms.AbsoluteActions(delta_action_mask)],
+        )
+
+        # Model transforms include things like tokenizing the prompt and action targets
+        model_transforms = ModelTransformFactory()(model_config)
+
+        return dataclasses.replace(
+            self.create_base_config(assets_dirs),
+            repack_transforms=repack_transform,
+            data_transforms=data_transforms,
+            model_transforms=model_transforms,
+        )
 
 
 @dataclasses.dataclass(frozen=True)
@@ -515,29 +559,6 @@ _CONFIGS = [
     ),
     # inference kinova config
     TrainConfig(
-        name="pi0_kinova",
-        model=pi0.Pi0Config(action_horizon=10),
-        data=LeRobotKinovaDataConfig(
-            repo_id="qbb/pick_and_put_in_drawer",
-            base_config=DataConfig(
-                local_files_only=True,
-                prompt_from_task=True,
-                action_sequence_keys=("action",)
-            ),
-        ),
-        weight_loader=weight_loaders.CheckpointWeightLoader("s3://openpi-assets/checkpoints/pi0_base/params"),
-        num_train_steps=30_000,
-        lr_schedule=_optimizer.CosineDecaySchedule(
-            warmup_steps=1_000,
-            peak_lr=5e-5,
-            decay_steps=30_000,
-            decay_lr=5e-6
-        ),
-        batch_size=64,
-        num_workers=8,
-        fsdp_devices=2
-    ),
-    TrainConfig(
         name="pi0_kinova_v1",
         model=pi0.Pi0Config(action_horizon=10),
         data=LeRobotKinovaDataConfig(
@@ -561,10 +582,10 @@ _CONFIGS = [
         fsdp_devices=2
     ),
     TrainConfig(
-        name="pi0_kinova_low_mem_finetune",
+        name="pi0_kinova_v1_low_mem_finetune",
         model=pi0.Pi0Config(action_horizon=10, paligemma_variant="gemma_2b_lora", action_expert_variant="gemma_300m_lora"),
         data=LeRobotKinovaDataConfig(
-            repo_id="qbb/pick_and_put_in_drawer",
+            repo_id="qbb/pick_and_put_in_drawer_v1",
             base_config=DataConfig(
                 local_files_only=True,  # Set to True for local-only datasets.
                 prompt_from_task=True,
@@ -581,10 +602,11 @@ _CONFIGS = [
         num_workers=4,
         fsdp_devices=1
     ),
+    # fine-tuning airbot configs
     TrainConfig(
-        name="pi0_kinova_v1_low_mem_finetune",
-        model=pi0.Pi0Config(action_horizon=10, paligemma_variant="gemma_2b_lora", action_expert_variant="gemma_300m_lora"),
-        data=LeRobotKinovaDataConfig(
+        name="pi0_airbot_lora",
+        model=pi0.Pi0Config(action_horizon=50, paligemma_variant="gemma_2b_lora", action_expert_variant="gemma_300m_lora"),
+        data=LeRobotAirbotDataConfig(
             repo_id="qbb/pick_and_put_in_drawer_v1",
             base_config=DataConfig(
                 local_files_only=True,  # Set to True for local-only datasets.
@@ -593,7 +615,7 @@ _CONFIGS = [
             ),
         ),
         weight_loader=weight_loaders.CheckpointWeightLoader("s3://openpi-assets/checkpoints/pi0_base/params"),
-        num_train_steps=30_000,
+        num_train_steps=20_000,
         freeze_filter=pi0.Pi0Config(
             paligemma_variant="gemma_2b_lora", action_expert_variant="gemma_300m_lora"
         ).get_freeze_filter(),
