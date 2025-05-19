@@ -604,8 +604,31 @@ _CONFIGS = [
     ),
     # fine-tuning airbot configs
     TrainConfig(
+        name="pi0_airbot",
+        model=pi0.Pi0Config(action_horizon=10),
+        data=LeRobotAirbotDataConfig(
+            repo_id="qbb/pick_banana",
+            base_config=DataConfig(
+                local_files_only=True,
+                prompt_from_task=True,
+                action_sequence_keys=("action",)
+            ),
+        ),
+        weight_loader=weight_loaders.CheckpointWeightLoader("s3://openpi-assets/checkpoints/pi0_base/params"),
+        num_train_steps=5_000,
+        lr_schedule=_optimizer.CosineDecaySchedule(
+            warmup_steps=500,
+            peak_lr=5e-5,
+            decay_steps=5_000,
+            decay_lr=5e-6
+        ),
+        batch_size=64,
+        num_workers=8,
+        fsdp_devices=2
+    ),
+    TrainConfig(
         name="pi0_airbot_lora",
-        model=pi0.Pi0Config(action_horizon=50, paligemma_variant="gemma_2b_lora", action_expert_variant="gemma_300m_lora"),
+        model=pi0.Pi0Config(action_horizon=10, paligemma_variant="gemma_2b_lora", action_expert_variant="gemma_300m_lora"),
         data=LeRobotAirbotDataConfig(
             repo_id="qbb/pick_banana",
             base_config=DataConfig(
@@ -615,7 +638,13 @@ _CONFIGS = [
             ),
         ),
         weight_loader=weight_loaders.CheckpointWeightLoader("s3://openpi-assets/checkpoints/pi0_base/params"),
-        num_train_steps=20_000,
+        num_train_steps=10_000,
+        lr_schedule=_optimizer.CosineDecaySchedule(
+            warmup_steps=500,
+            peak_lr=2.5e-5,
+            decay_steps=10_000,
+            decay_lr=2.5e-6
+        ),
         freeze_filter=pi0.Pi0Config(
             paligemma_variant="gemma_2b_lora", action_expert_variant="gemma_300m_lora"
         ).get_freeze_filter(),
