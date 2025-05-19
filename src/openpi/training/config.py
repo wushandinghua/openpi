@@ -624,7 +624,8 @@ _CONFIGS = [
         ),
         batch_size=64,
         num_workers=8,
-        fsdp_devices=2
+        fsdp_devices=2,
+        keep_period=2500
     ),
     TrainConfig(
         name="pi0_airbot_lora",
@@ -651,7 +652,8 @@ _CONFIGS = [
         ema_decay=None,
         batch_size=32,
         num_workers=4,
-        fsdp_devices=1
+        fsdp_devices=1,
+        keep_period=2500
     ),
     #
     # Fine-tuning Libero configs.
