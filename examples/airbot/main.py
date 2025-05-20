@@ -23,7 +23,6 @@ uv pip install tyro==0.9.5
 uv pip install dm_env==1.6
 uv pip install matplotlib==3.10.0
 uv pip install matplotlib-inline==0.1.7
-uv pip install pyqt5==5.13.0
 
 3.exapmle usage: python examples/airbot/main.py --args.host "192.168.3.101" --args.port 8000 --args.instruction "pick up the banana with one of your arm and put it in the black fruit basket"
 """

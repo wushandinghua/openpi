@@ -75,7 +75,7 @@ class AirbotEnvironment(_environment.Environment):
             CAM_HIGH: obs[f"observation.images.{CAM_HIGH}"],
             CAM_LEFT_WRIST: obs[f"observation.images.{CAM_LEFT_WRIST}"],
             CAM_RIGHT_WRIST: obs[f"observation.images.{CAM_RIGHT_WRIST}"],
-            "state": obs["observation.state"],
+            "state": np.array(obs["observation.state"]),
             "prompt": self.instruction,
         }
 
