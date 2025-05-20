@@ -444,6 +444,7 @@ class AIRBOTPlay:
 
         self.follower_robot = follower_robot
         time.sleep(0.3)
+        self.is_servo_mode = True
         try:
             self.connect()
         except Exception as e:
@@ -571,8 +572,15 @@ class AIRBOTPlay:
             target_joint_positions = list(target_joint_positions)
         # 这里假设非阻塞执行，视为并发控制
         for i in range(len(self.follower_robot)):
-            self.follower_robot[i].move_eef_pos(target_joint_positions[i * 7 + 6], blocking=False)
-            self.follower_robot[i].move_to_joint_pos(target_joint_positions[i * 7:i * 7 + 6], blocking=False)
+            if self.is_servo_mode:
+                self.follower_robot[i].switch_mode(RobotMode.SERVO_JOINT_POS)
+                self.follower_robot[i].set_speed_profile(SpeedProfile.FAST)
+                self.follower_robot[i].servo_joint_pos(target_joint_positions[i * 7:i * 7 + 6])
+                self.follower_robot[i].servo_eef_pos(target_joint_positions[i * 7 + 6])
+                
+            else:
+                self.follower_robot[i].move_eef_pos(target_joint_positions[i * 7 + 6], blocking=False)
+                self.follower_robot[i].move_to_joint_pos(target_joint_positions[i * 7:i * 7 + 6], blocking=False)
         
     def back_home(self):
         args = self.config
