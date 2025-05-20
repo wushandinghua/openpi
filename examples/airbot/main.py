@@ -11,7 +11,10 @@ sys.path.append("./")
 from examples.airbot import env as _env
 from examples.airbot import video_display as _video_display
 from examples.airbot.constants import CAM_HIGH, CAM_LEFT_WRIST, CAM_RIGHT_WRIST
+"""
 
+exapmle usage: python examples/airbot/main.py --args.host "192.168.3.101" --args.port 8000 --args.instruction "pick up the banana with one of your arm and put it in the black fruit basket"
+"""
 
 @dataclasses.dataclass
 class Args:
