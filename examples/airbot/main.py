@@ -12,8 +12,20 @@ from examples.airbot import env as _env
 from examples.airbot import video_display as _video_display
 from examples.airbot.constants import CAM_HIGH, CAM_LEFT_WRIST, CAM_RIGHT_WRIST
 """
+1.conda activate airbot_5_8
+2.
+GIT_LFS_SKIP_SMUDGE=1 uv sync
+GIT_LFS_SKIP_SMUDGE=1 uv pip install -e .
+or 针对推断要用的包单独安装
+uv pip install typing_extensions==4.12.2
+uv pip install -e packages/openpi-client
+uv pip install tyro==0.9.5
+uv pip install dm_env==1.6
+uv pip install matplotlib==3.10.0
+uv pip install matplotlib-inline==0.1.7
+uv pip install pyqt5==5.13.0
 
-exapmle usage: python examples/airbot/main.py --args.host "192.168.3.101" --args.port 8000 --args.instruction "pick up the banana with one of your arm and put it in the black fruit basket"
+3.exapmle usage: python examples/airbot/main.py --args.host "192.168.3.101" --args.port 8000 --args.instruction "pick up the banana with one of your arm and put it in the black fruit basket"
 """
 
 @dataclasses.dataclass
