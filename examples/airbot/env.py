@@ -60,8 +60,10 @@ class AirbotEnvironment(_environment.Environment):
             #)
             #obs["images"][cam_name] = einops.rearrange(img, "h w c -> c h w")
             if "images" not in key: continue
-            img = image_tools.resize_with_pad(obs[key], self._render_height, self._render_width)
-            obs[key] = img 
+            img = image_tools.convert_to_uint8(
+                image_tools.resize_with_pad(obs[key], self._render_height, self._render_width)
+            )
+            obs[key] = einops.rearrange(img, "h w c -> c h w")
 
         #print("cam wrist image shape after:", obs["images"][f"{CAM_WRIST}"].shape)
         #print("cam exterior image shape after:", obs["images"][f"{CAM_WRIST}"].shape)

@@ -44,7 +44,7 @@ def main(args: Args) -> None:
         ),
         subscribers=[cam_subscriber],
         #subscribers=[],
-        max_hz=10,
+        max_hz=20,
         num_episodes=args.num_episodes,
         max_episode_steps=args.max_episode_steps,
     )
