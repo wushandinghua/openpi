@@ -444,7 +444,7 @@ class AIRBOTPlay:
 
         self.follower_robot = follower_robot
         time.sleep(0.3)
-        self.is_servo_mode = True
+        self.is_servo_mode = False
         try:
             self.connect()
         except Exception as e:
@@ -499,7 +499,7 @@ class AIRBOTPlay:
                 self.follower_robot[i].move_eef_pos(0.0)
                 self.follower_robot[i].disconnect()
         except Exception as e:
-            pass
+            print("Failed to disconnect airbot, err:", e)
         self.is_connected = False
         print("Robot exited")
 
