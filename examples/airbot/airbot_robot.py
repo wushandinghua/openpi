@@ -475,7 +475,9 @@ class AIRBOTPlay:
             print(f"follower {i} moved to start position")
         
         for i, robot in enumerate(self.follower_robot):
-            # 设置机械臂速度
+            # 设置机械臂控制模式
+            if self.is_servo_mode:
+                robot.switch_mode(RobotMode.SERVO_JOINT_POS)
             robot.set_speed_profile(SpeedProfile.FAST)
         
         self.is_connected = True
@@ -573,8 +575,6 @@ class AIRBOTPlay:
         # 这里假设非阻塞执行，视为并发控制
         for i in range(len(self.follower_robot)):
             if self.is_servo_mode:
-                self.follower_robot[i].switch_mode(RobotMode.SERVO_JOINT_POS)
-                self.follower_robot[i].set_speed_profile(SpeedProfile.FAST)
                 self.follower_robot[i].servo_joint_pos(target_joint_positions[i * 7:i * 7 + 6])
                 self.follower_robot[i].servo_eef_pos(target_joint_positions[i * 7 + 6])
                 
