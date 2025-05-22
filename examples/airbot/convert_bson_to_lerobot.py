@@ -97,7 +97,7 @@ def find_bson_dirs(dir_path):
             if bson_file.exists():
                 result.append(str(full_dir))
 
-    return sorted(result)
+    return sorted(result, key=lambda x:int(x.split("/")[-1]) )
 
 
 def load_bson(bson_path):
@@ -434,7 +434,7 @@ def convert_bson_to_lerobot(
     """
     # Find all bson directories
     ep_dirs = find_bson_dirs(bson_dir)
-    print(f"Found {len(ep_dirs)} episode directories")
+    print(f"Found {len(ep_dirs)} episode directories: {ep_dirs}")
     
     if not ep_dirs:
         raise ValueError(f"No episode directories found in {bson_dir}")
