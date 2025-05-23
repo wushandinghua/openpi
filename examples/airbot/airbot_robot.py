@@ -589,6 +589,7 @@ class AIRBOTPlay:
         home_positions += [0.0]
         for i in range(self.config.follower_number):
                 self.follower_robot[i].set_speed_profile(SpeedProfile.SLOW)
+        time.sleep(0.5)
         self.send_action(home_positions)
         for i in range(self.config.follower_number):
                 self.follower_robot[i].set_speed_profile(SpeedProfile.FAST)
