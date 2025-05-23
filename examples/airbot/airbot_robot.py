@@ -444,7 +444,7 @@ class AIRBOTPlay:
 
         self.follower_robot = follower_robot
         time.sleep(0.3)
-        self.is_servo_mode = False
+        self.is_servo_mode = True
         try:
             self.connect()
         except Exception as e:
