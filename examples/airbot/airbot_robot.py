@@ -589,10 +589,11 @@ class AIRBOTPlay:
         home_positions += [0.0]
         for i in range(self.config.follower_number):
                 self.follower_robot[i].set_speed_profile(SpeedProfile.SLOW)
-        time.sleep(0.5)
+        time.sleep(2)
         self.send_action(home_positions)
         for i in range(self.config.follower_number):
                 self.follower_robot[i].set_speed_profile(SpeedProfile.FAST)
+        time.sleep(2)
     
     def __del__(self):
         if getattr(self, "is_connected", False):
