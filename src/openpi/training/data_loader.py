@@ -102,7 +102,7 @@ def create_dataset(data_config: _config.DataConfig, model_config: _model.BaseMod
         # episodes=[i for i in range(255) if i not in [31, 114, 124]] # for v1 datasets
         # episodes=[i for i in range(255) if i not in [31, 114, 124] and i <= 130] # for half of v1 datasets
         # episodes=[i for i in range(390) if i not in [31, 114, 124]] # for v1 datasets, len 390
-        episodes=[i for i in range(112) if i in [0,1,4,8,10,11,14,17,18,20,21,22,23,24,25,26,27,28,29,30,31,33,34,35,36,37,38,39,40,41,43,44,47,48,49,50,51,52,53,54,55,57,58,59,60,62,63,65,66,67,68,69,70,71,73,74,75,76,78,79,82,83,84,85,86,87,88,89,92,95,96,97,98,99,101,102,105,107,109,110] ],  # for valid pick banana datasets
+        # episodes=[i for i in range(112) if i in [0,1,4,8,10,11,14,17,18,20,21,22,23,24,25,26,27,28,29,30,31,33,34,35,36,37,38,39,40,41,43,44,47,48,49,50,51,52,53,54,55,57,58,59,60,62,63,65,66,67,68,69,70,71,73,74,75,76,78,79,82,83,84,85,86,87,88,89,92,95,96,97,98,99,101,102,105,107,109,110] ],  # for valid pick banana datasets
     )
 
     if data_config.prompt_from_task:

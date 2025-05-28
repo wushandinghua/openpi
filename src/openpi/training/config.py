@@ -607,7 +607,7 @@ _CONFIGS = [
         name="pi0_airbot",
         model=pi0.Pi0Config(action_horizon=10),
         data=LeRobotAirbotDataConfig(
-            repo_id="qbb/pick_banana",
+            repo_id="qbb/pick_banana_bottle_pillbox_clean",
             base_config=DataConfig(
                 local_files_only=True,
                 prompt_from_task=True,
@@ -631,7 +631,7 @@ _CONFIGS = [
         name="pi0_airbot_lora",
         model=pi0.Pi0Config(action_horizon=10, paligemma_variant="gemma_2b_lora", action_expert_variant="gemma_300m_lora"),
         data=LeRobotAirbotDataConfig(
-            repo_id="qbb/pick_banana",
+            repo_id="qbb/pick_banana_bottle_pillbox_clean",
             base_config=DataConfig(
                 local_files_only=True,  # Set to True for local-only datasets.
                 prompt_from_task=True,
