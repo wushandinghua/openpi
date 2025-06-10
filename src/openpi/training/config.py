@@ -607,7 +607,8 @@ _CONFIGS = [
         name="pi0_airbot",
         model=pi0.Pi0Config(action_horizon=10),
         data=LeRobotAirbotDataConfig(
-            repo_id="qbb/pick_banana_bottle_pillbox_clean",
+            repo_id="qbb/pick_bottle_pillbox_clean",
+            #repo_id="qbb/pick_banana_bottle_pillbox_clean",
             base_config=DataConfig(
                 local_files_only=True,
                 prompt_from_task=True,
@@ -631,7 +632,11 @@ _CONFIGS = [
         name="pi0_airbot_lora",
         model=pi0.Pi0Config(action_horizon=10, paligemma_variant="gemma_2b_lora", action_expert_variant="gemma_300m_lora"),
         data=LeRobotAirbotDataConfig(
-            repo_id="qbb/pick_banana_bottle_pillbox_clean",
+            repo_id="qbb/pick_bbq_brush_oil",
+            #repo_id="qbb/pick_bottle_clean",
+            #repo_id="qbb/pick_bottle_pillbox_clean",
+            #repo_id="qbb/pick_banana_bottle_pillbox_clean",
+            #repo_id="qbb/pick_banana",
             base_config=DataConfig(
                 local_files_only=True,  # Set to True for local-only datasets.
                 prompt_from_task=True,
@@ -639,11 +644,11 @@ _CONFIGS = [
             ),
         ),
         weight_loader=weight_loaders.CheckpointWeightLoader("s3://openpi-assets/checkpoints/pi0_base/params"),
-        num_train_steps=10_000,
+        num_train_steps=20_000,
         lr_schedule=_optimizer.CosineDecaySchedule(
-            warmup_steps=500,
+            warmup_steps=1000,
             peak_lr=2.5e-5,
-            decay_steps=10_000,
+            decay_steps=20_000,
             decay_lr=2.5e-6
         ),
         freeze_filter=pi0.Pi0Config(
@@ -653,7 +658,8 @@ _CONFIGS = [
         batch_size=32,
         num_workers=4,
         fsdp_devices=1,
-        keep_period=2500
+        keep_period=2500,
+        wandb_enabled=False
     ),
     #
     # Fine-tuning Libero configs.

@@ -375,6 +375,7 @@ def populate_dataset(
     """Populate the dataset with episode data."""
     if episodes is None:
         episodes = list(range(len(ep_dirs)))
+    print(f"trans total {len(episodes)} episode directories: {episodes}")
     
     for ep_idx in tqdm.tqdm(episodes):
         ep_path = ep_dirs[ep_idx]
