@@ -632,7 +632,9 @@ _CONFIGS = [
         name="pi0_airbot_lora",
         model=pi0.Pi0Config(action_horizon=10, paligemma_variant="gemma_2b_lora", action_expert_variant="gemma_300m_lora"),
         data=LeRobotAirbotDataConfig(
-            repo_id="qbb/pick_bbq_brush_oil",
+            #repo_id="qbb/pick_bbq_place_plate",
+            repo_id="qbb/pick_bbq_put_shelf",
+            #repo_id="qbb/pick_bbq_brush_oil",
             #repo_id="qbb/pick_bottle_clean",
             #repo_id="qbb/pick_bottle_pillbox_clean",
             #repo_id="qbb/pick_banana_bottle_pillbox_clean",
