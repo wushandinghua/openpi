@@ -14,6 +14,7 @@ import jax.numpy as jnp
 import optax
 import tqdm_loggable.auto as tqdm
 import wandb
+import swanlab
 
 import openpi.models.model as _model
 import openpi.shared.array_typing as at
@@ -67,6 +68,28 @@ def init_wandb(config: _config.TrainConfig, *, resuming: bool, log_code: bool = 
 
     if log_code:
         wandb.run.log_code(epath.Path(__file__).parent.parent)
+
+def init_swanlab(config: _config.TrainConfig, *, resuming: bool, log_code: bool = False, enabled: bool = True):
+    if not enabled:
+        swanlab.init(mode="disabled")
+        return
+
+    ckpt_dir = config.checkpoint_dir
+    if not ckpt_dir.exists():
+        raise FileNotFoundError(f"Checkpoint directory {ckpt_dir} does not exist.")
+    if resuming:
+        run_id = (ckpt_dir / "wandb_id.txt").read_text().strip()
+        swanlab.init(run_id=run_id, resume="must", project=config.project_name)
+    else:
+        swanlab.init(
+            experiment_name=config.exp_name,
+            config=dataclasses.asdict(config),
+            project=config.project_name,
+        )
+        (ckpt_dir / "wandb_id.txt").write_text(swanlab.get_run().public.run_id)
+
+    if log_code:
+        swanlab.run.log_code(epath.Path(__file__).parent.parent)
 
 
 def _load_weights_and_validate(loader: _weight_loaders.WeightLoader, params_shape: at.Params) -> at.Params:
@@ -214,7 +237,8 @@ def main(config: _config.TrainConfig):
         overwrite=config.overwrite,
         resume=config.resume,
     )
-    init_wandb(config, resuming=resuming, enabled=config.wandb_enabled)
+    # init_wandb(config, resuming=resuming, enabled=config.wandb_enabled)
+    init_swanlab(config, resuming=resuming, enabled=config.wandb_enabled)
 
     data_loader = _data_loader.create_data_loader(
         config,
@@ -258,7 +282,8 @@ def main(config: _config.TrainConfig):
             reduced_info = jax.device_get(jax.tree.map(jnp.mean, stacked_infos))
             info_str = ", ".join(f"{k}={v:.4f}" for k, v in reduced_info.items())
             pbar.write(f"Step {step}: {info_str}")
-            wandb.log(reduced_info, step=step)
+            # wandb.log(reduced_info, step=step)
+            swanlab.log(reduced_info, step=step)
             infos = []
         batch = next(data_iter)
 
