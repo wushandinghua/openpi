@@ -37,6 +37,7 @@ class Args:
     num_episodes: int = 1
     max_episode_steps: int = 1000
     instruction: str = "pick up the apple"
+    reset_type: int = 3 # 0: no reset, 1: reset when robot connect, 2: reset when robot disconnect, 3: reset when robot connect and disconnect
 
 
 def main(args: Args) -> None:
@@ -49,7 +50,7 @@ def main(args: Args) -> None:
 
     metadata = ws_client_policy.get_server_metadata()
     runtime = _runtime.Runtime(
-        environment=_env.AirbotEnvironment(reset_position=metadata.get("reset_pose"), instruction=args.instruction),
+        environment=_env.AirbotEnvironment(reset_position=metadata.get("reset_pose"), instruction=args.instruction, reset_type=args.reset_type),
         agent=_policy_agent.PolicyAgent(
             policy=action_chunk_broker.ActionChunkBroker(
                 policy=ws_client_policy,
