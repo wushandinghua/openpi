@@ -79,7 +79,7 @@ def init_swanlab(config: _config.TrainConfig, *, resuming: bool, log_code: bool 
         raise FileNotFoundError(f"Checkpoint directory {ckpt_dir} does not exist.")
     if resuming:
         run_id = (ckpt_dir / "wandb_id.txt").read_text().strip()
-        swanlab.init(run_id=run_id, resume="must", project=config.project_name)
+        swanlab.init(run_id=run_id, project=config.project_name, experiment_name=config.exp_name)
     else:
         swanlab.init(
             experiment_name=config.exp_name,

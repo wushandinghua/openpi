@@ -634,9 +634,9 @@ _CONFIGS = [
         data=LeRobotAirbotDataConfig(
             #repo_id="qbb/flip_bbq",
             #repo_id="qbb/pick_bbq_place_plate",
-            # repo_id="qbb/pick_bbq_put_shelf",
-            repo_id="qbb/pick_bbq_put_shelf_1_people",
-            #repo_id="qbb/pick_bbq_brush_oil",
+            #repo_id="qbb/pick_bbq_put_shelf",
+            #repo_id="qbb/pick_bbq_put_shelf_1_people",
+            repo_id="qbb/pick_bbq_brush_oil",
             #repo_id="qbb/pick_bottle_clean",
             #repo_id="qbb/pick_bottle_pillbox_clean",
             #repo_id="qbb/pick_banana_bottle_pillbox_clean",
@@ -668,7 +668,8 @@ _CONFIGS = [
         name="pi0_airbot_lora_merge",
         model=pi0.Pi0Config(action_horizon=10, paligemma_variant="gemma_2b_lora", action_expert_variant="gemma_300m_lora"),
         data=LeRobotAirbotDataConfig(
-            repo_id="qbb/bbq_task_0617",
+            repo_id="qbb/paper_tasks_0624",
+            #repo_id="qbb/bbq_task_0617",
             #repo_id="qbb/pick_bottle_pillbox_clean",
             #repo_id="qbb/pick_banana_bottle_pillbox_clean",
             base_config=DataConfig(
@@ -681,17 +682,17 @@ _CONFIGS = [
         num_train_steps=10_000,
         lr_schedule=_optimizer.CosineDecaySchedule(
             warmup_steps=500,
-            peak_lr=7.5e-5,
+            peak_lr=6.12e-5,
             decay_steps=10_000,
-            decay_lr=7.5e-6
+            decay_lr=6.12e-6
         ),
         freeze_filter=pi0.Pi0Config(
             paligemma_variant="gemma_2b_lora", action_expert_variant="gemma_300m_lora"
         ).get_freeze_filter(),
         ema_decay=None,
-        batch_size=128,
-        num_workers=8,
-        fsdp_devices=4,
+        batch_size=192,
+        num_workers=12,
+        fsdp_devices=6,
         keep_period=2500,
     ),
     #
