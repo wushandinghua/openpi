@@ -23,20 +23,21 @@ class RealEnv:
                         }
     """
 
-    def __init__(self, init_node, *, reset_position: Optional[List[float]] = None, setup_robots: bool = True):
+    def __init__(self, reset_position: Optional[List[float]] = None, reset_type: int = 3):
         # reset_position = START_ARM_POSE[:6]
         self._reset_position = reset_position[:7] if reset_position else constants.DEFAULT_RESET_POSITION
+        self._reset_type = reset_type
 
         # new kinova controller
-        self.robot = airbot_robot.AIRBOTPlay()
+        self.robot = airbot_robot.AIRBOTPlay(reset_type=self._reset_type, reset_position=self._reset_position)
 
-        if setup_robots:
-            self.setup_robots()
+        # if setup_robots:
+        #     self.setup_robots()
 
     def setup_robots(self):
         # reboot robot
         command = "reboot robot"
-        self.robot.back_home()
+        # self.robot.back_home()
         print(f"real env setup cmd:{command}, sleep time:{constants.DT}")
 
     def get_observation(self):
@@ -68,5 +69,5 @@ class RealEnv:
         )
 
 
-def make_real_env(init_node, *, reset_position: Optional[List[float]] = None, setup_robots: bool = True) -> RealEnv:
-    return RealEnv(init_node, reset_position=reset_position, setup_robots=setup_robots)
+def make_real_env(reset_position: Optional[List[float]] = None, reset_type: int = 3) -> RealEnv:
+    return RealEnv(reset_position=reset_position, reset_type=reset_type)

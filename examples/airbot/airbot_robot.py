@@ -413,17 +413,23 @@ class AIRBOTPlay:
     and robotic arms (leader and follower robots).
     """
 
-    def __init__(self) -> None:
+    def __init__(self, reset_type, reset_position) -> None:
         """
         Initializes the AIRBOTPlay object by connecting to cameras and robots.
 
         Args:
+            reset_type, 
+            reset_position,
             config: Configuration object containing the necessary parameters (e.g., camera settings, robot IPs).
             **kwargs: Additional arguments passed to the class constructor (not used here).
         """
         self.config = SimpleNamespace(**_ROBOT_CONFIG)
         self.cameras = self.config.cameras
         print("airbot config:", self.config)
+        # 0: no reset, 1: reset when robot connect, 2: reset when robot disconnect, 3: reset when robot connect and disconnect
+        self._reset_type = reset_type
+        self._reset_position = reset_position
+        print("reset_type:", self._reset_type, "reset_position:", self._reset_position)
         # Initialize cameras
         for name in self.cameras:
             self.cameras[name] = OpenCVCamera(self.cameras[name])
@@ -469,10 +475,11 @@ class AIRBOTPlay:
             # 设置机械臂速度
             robot.switch_mode(RobotMode.PLANNING_POS)
             robot.set_speed_profile(SpeedProfile.SLOW)
-            #robot.move_to_joint_pos([0.0] * 6)
-            robot.move_to_joint_pos(args.start_arm_joint_position[i])
-            robot.move_eef_pos(0.0)
-            print(f"follower {i} moved to start position")
+            if self._reset_type & 1 > 0:
+                #robot.move_to_joint_pos([0.0] * 6)
+                robot.move_to_joint_pos(args.start_arm_joint_position[i])
+                robot.move_eef_pos(0.0)
+                print(f"follower {i} moved to start position")
         
         for i, robot in enumerate(self.follower_robot):
             # 设置机械臂控制模式
@@ -497,8 +504,9 @@ class AIRBOTPlay:
             for i in range(self.config.follower_number):
                 self.follower_robot[i].switch_mode(RobotMode.PLANNING_POS)
                 self.follower_robot[i].set_speed_profile(SpeedProfile.SLOW)
-                self.follower_robot[i].move_to_joint_pos([0.0] * 6)
-                self.follower_robot[i].move_eef_pos(0.0)
+                if self._reset_type & 2 > 0:
+                    self.follower_robot[i].move_to_joint_pos([0.0] * 6)
+                    self.follower_robot[i].move_eef_pos(0.0)
                 self.follower_robot[i].disconnect()
         except Exception as e:
             print("Failed to disconnect airbot, err:", e)

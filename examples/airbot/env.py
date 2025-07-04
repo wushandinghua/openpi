@@ -18,9 +18,10 @@ class AirbotEnvironment(_environment.Environment):
         reset_position: Optional[List[float]] = None,  # noqa: UP006,UP007
         render_height: int = 224,
         render_width: int = 224,
-        instruction: str = None
+        instruction: str = None,
+        reset_type: int = 3 # 0: no reset, 1: reset when robot connect, 2: reset when robot disconnect, 3: reset when robot connect and disconnect
     ) -> None:
-        self._env = _real_env.make_real_env(init_node=True, reset_position=reset_position, setup_robots=False)
+        self._env = _real_env.make_real_env(reset_position=reset_position, reset_type=reset_type)
         self._render_height = render_height
         self._render_width = render_width
 
