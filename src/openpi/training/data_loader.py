@@ -98,7 +98,7 @@ def create_dataset(data_config: _config.DataConfig, model_config: _model.BaseMod
             for key in data_config.action_sequence_keys
         },
         local_files_only=data_config.local_files_only,
-        episodes=[i for i in range(1656) if i not in [11,102,571,580]] #for paper task 0624
+        # episodes=[i for i in range(1656) if i not in [11,102,571,580]] #for paper task 0624
         # episodes=[i for i in range(215) if i not in [16, 47, 57]]
         # episodes=[i for i in range(255) if i not in [31, 114, 124]] # for v1 datasets
         # episodes=[i for i in range(255) if i not in [31, 114, 124] and i <= 130] # for half of v1 datasets
