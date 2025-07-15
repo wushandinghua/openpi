@@ -636,7 +636,9 @@ _CONFIGS = [
             #repo_id="qbb/pick_bbq_place_plate",
             #repo_id="qbb/pick_bbq_put_shelf",
             #repo_id="qbb/pick_bbq_put_shelf_1_people",
-            repo_id="qbb/pick_bbq_brush_oil",
+            # repo_id="qbb/pick_bbq_brush_oil",
+            repo_id="qbb/open_close_tap_0612_pick",
+            # repo_id="qbb/open_close_tap_0612_put",
             #repo_id="qbb/pick_bottle_clean",
             #repo_id="qbb/pick_bottle_pillbox_clean",
             #repo_id="qbb/pick_banana_bottle_pillbox_clean",
@@ -648,11 +650,11 @@ _CONFIGS = [
             ),
         ),
         weight_loader=weight_loaders.CheckpointWeightLoader("s3://openpi-assets/checkpoints/pi0_base/params"),
-        num_train_steps=20_000,
+        num_train_steps=10_000,
         lr_schedule=_optimizer.CosineDecaySchedule(
-            warmup_steps=1000,
+            warmup_steps=500,
             peak_lr=2.5e-5,
-            decay_steps=20_000,
+            decay_steps=10_000,
             decay_lr=2.5e-6
         ),
         freeze_filter=pi0.Pi0Config(
@@ -662,7 +664,7 @@ _CONFIGS = [
         batch_size=32,
         num_workers=4,
         fsdp_devices=1,
-        keep_period=2500,
+        keep_period=2000,
         checkpoint_base_dir="/data/openpi/checkpoints"
     ),
     TrainConfig(
@@ -702,9 +704,9 @@ _CONFIGS = [
         model=pi0.Pi0Config(action_horizon=10, paligemma_variant="gemma_2b_lora", action_expert_variant="gemma_300m_lora"),
         data=LeRobotAirbotDataConfig(
             #repo_id="qbb/paper_tasks_0624",
-            #repo_id="qbb/paper_open_task_0702",
-            # repo_id="qbb/paper_close_tasks_0702",
-            repo_id="qbb/paper_open_tasks_0703",
+            # repo_id="qbb/paper_open_tasks_0703",
+            repo_id="qbb/paper_close_tasks_0706",
+            # repo_id="qbb/open_close_tap_0709",
             #repo_id="qbb/bbq_task_0617",
             #repo_id="qbb/pick_bottle_pillbox_clean",
             #repo_id="qbb/pick_banana_bottle_pillbox_clean",
@@ -729,7 +731,7 @@ _CONFIGS = [
         batch_size=64,
         num_workers=4,
         fsdp_devices=2,
-        keep_period=2500,
+        keep_period=2000,
         checkpoint_base_dir="/data/openpi/checkpoints"
     ),
     TrainConfig(

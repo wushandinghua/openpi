@@ -4,7 +4,7 @@ import shutil
 from collections import OrderedDict
 
 # 路径设置
-ds_base = os.path.expanduser("~/.cache/huggingface/lerobot/qbb/paper_open_tasks_0703")
+ds_base = os.path.expanduser("~/.cache/huggingface/lerobot/qbb/open_close_tap_0709")
 videos_dir = os.path.join(ds_base, "videos")
 meta_dir = os.path.join(ds_base, "meta")
 info_json_path = os.path.join(meta_dir, "info.json")
