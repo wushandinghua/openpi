@@ -1,0 +1,32 @@
+{
+    "observations": {
+        "state": {
+            "arm_l_state": "/hdas/feedback_arm_left",
+            "gripper_l_state": "/hdas/feedback_gripper_left",
+            "arm_r_state": "/hdas/feedback_arm_right",
+            "gripper_r_state": "/hdas/feedback_gripper_right"
+        },
+        "images": {
+            "cam1": "/hdas/wrist_left/camera/image/compressed",
+            "cam2": "/hdas/camera_head/left_raw/image_raw_color/compressed",
+            "cam3": "/hdas/wrist_right/camera/image/compressed"
+        }
+    },
+    "action": {
+        "arm_l_action": "/motion_target/target_joint_state_arm_left",
+        "gripper_l_action": "/motion_target/target_position_gripper_left",
+        "arm_r_action": "/motion_target/target_joint_state_arm_right",
+        "gripper_r_action": "/motion_target/target_position_gripper_right"
+    },
+    "head_cam": {
+        "camera_matrix": [
+            [1006.0582118247934, 0.0, 960.5697664900398],
+            [0.0, 1003.6652333957827, 553.0467321454616],
+            [0.0, 0.0, 1.0]
+        ],
+        "distortion_coefficients": [
+            -0.38154841832755654, 0.19326013419893498, -0.002474956309358131,
+            -0.000250071109775985, -0.0581107488155821
+        ]
+    }
+}

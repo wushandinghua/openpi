@@ -368,6 +368,8 @@ class LeRobotKinovaDataConfig(DataConfigFactory):
     
 @dataclasses.dataclass(frozen=True)
 class LeRobotAirbotDataConfig(DataConfigFactory):
+    num_joints: int = 6
+    
     @override
     def create(self, assets_dirs: pathlib.Path, model_config: _model.BaseModelConfig) -> DataConfig:
         # Make inputs look like they come from the Aitbot environment
@@ -390,10 +392,10 @@ class LeRobotAirbotDataConfig(DataConfigFactory):
         # Convert images to uint8 numpy arrays, add masks
         data_transforms = _transforms.Group(
             inputs=[Airbot_policy.AirbotInputs(action_dim=model_config.action_dim, model_type=model_config.model_type)],
-            outputs=[Airbot_policy.AirbotOutputs()],
+            outputs=[Airbot_policy.AirbotOutputs(num_joints=self.num_joints)],
         )
         # Use delta actions (not for gripper)
-        delta_action_mask = _transforms.make_bool_mask(6, -1, 6, -1)
+        delta_action_mask = _transforms.make_bool_mask(self.num_joints, -1, self.num_joints, -1)
         data_transforms = data_transforms.push(
             inputs=[_transforms.DeltaActions(delta_action_mask)],
             outputs=[_transforms.AbsoluteActions(delta_action_mask)],
@@ -764,6 +766,37 @@ _CONFIGS = [
         num_workers=8,
         fsdp_devices=4,
         keep_period=5000,
+        checkpoint_base_dir="/data/openpi/checkpoints"
+    ),
+    # fine-tuning galaxea r1 pro configs
+    TrainConfig(
+        name="pi0_galexea_lora",
+        model=pi0.Pi0Config(action_horizon=10, paligemma_variant="gemma_2b_lora", action_expert_variant="gemma_300m_lora"),
+        data=LeRobotAirbotDataConfig(
+            repo_id="qbb/open_close_tap_0612_pick",
+            base_config=DataConfig(
+                local_files_only=True,  # Set to True for local-only datasets.
+                prompt_from_task=True,
+                action_sequence_keys=("action",)
+            ),
+            num_joints=7,  # Galaxea has 7 joints.
+        ),
+        weight_loader=weight_loaders.CheckpointWeightLoader("s3://openpi-assets/checkpoints/pi0_base/params"),
+        num_train_steps=10_000,
+        lr_schedule=_optimizer.CosineDecaySchedule(
+            warmup_steps=500,
+            peak_lr=2.5e-5,
+            decay_steps=10_000,
+            decay_lr=2.5e-6
+        ),
+        freeze_filter=pi0.Pi0Config(
+            paligemma_variant="gemma_2b_lora", action_expert_variant="gemma_300m_lora"
+        ).get_freeze_filter(),
+        ema_decay=None,
+        batch_size=32,
+        num_workers=4,
+        fsdp_devices=1,
+        keep_period=2000,
         checkpoint_base_dir="/data/openpi/checkpoints"
     ),
     #

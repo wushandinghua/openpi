@@ -110,10 +110,12 @@ class AirbotOutputs(transforms.DataTransformFn):
 
     For your own dataset, you can copy this class and modify the action dimension based on the comments below.
     """
+    num_joints: int = 6 # The number of joints in the robot arm. This is used to determine the needed action dimension.
 
     def __call__(self, data: dict) -> dict:
         # Only return the first N actions -- since we padded actions above to fit the model action
         # dimension, we need to now parse out the correct number of actions in the return dict.
         # For Libero, we only return the first 7 actions (since the rest is padding).
         # For your own dataset, replace `7` with the action dimension of your dataset.
-        return {"actions": np.asarray(data["actions"][:, :14])}
+        valid_action_dim = (self.num_joints + 1) * 2 # 14 actions in total, left arm and right arm, one arm has 6 joints + 1 gripper
+        return {"actions": np.asarray(data["actions"][:, :valid_action_dim])}
