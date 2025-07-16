@@ -1,7 +1,7 @@
 """
-Script to convert Aloha hdf5 data to the LeRobot dataset v2.0 format.
+Script to convert ros data to the LeRobot dataset v2.1 format.
 
-Example usage: uv run examples/aloha_real/convert_aloha_data_to_lerobot.py --raw-dir /path/to/raw/data --repo-id <org>/<dataset-name>
+Example usage: python examples/galaxea/convert_ros_data_to_lerobot.py /path/to/rosbags_or_dir /path/to/params.json qbb/pick_bottle_galaxea_r1 "pick up a bottle and put it down into the box"
 """
 
 import dataclasses
@@ -21,6 +21,8 @@ import os
 import cv2
 import json
 import time
+from collections.abc import Mapping
+import einops
 
 def find_closest_index_ascending(sorted_arr, a):
     """在升序数组中查找最接近a的值的索引"""
@@ -367,9 +369,10 @@ def create_empty_dataset(
         }
 
     for cam in cameras:
+        shape = (3, 480, 640) if cam == "cam_left_wrist" or cam == "cam_right_wrist" else (3, 1080, 1920)
         features[f"observation.images.{cam}"] = {
             "dtype": mode,
-            "shape": (3, 480, 640),
+            "shape": shape,
             "names": [
                 "channels",
                 "height",
@@ -393,6 +396,24 @@ def create_empty_dataset(
     )
 
 
+
+def flatten_dict(d, parent_key='', sep='.'):
+    """
+    压平多层嵌套字典（不处理list）
+    :param d: 输入字典
+    :param parent_key: 父级key（递归使用）
+    :param sep: 连接符
+    :return: 压平后的字典
+    """
+    items = {}
+    for k, v in d.items():
+        new_key = f"{parent_key}{sep}{k}" if parent_key else k
+        if isinstance(v, Mapping):  # 检测所有映射类型（dict/OrderedDict等）
+            items.update(flatten_dict(v, new_key, sep=sep))
+        else:
+            items[new_key] = v
+    return items
+
 def populate_dataset(
     dataset: LeRobotDataset,
     raw_data: list[dict[str, np.ndarray]],
@@ -407,8 +428,9 @@ def populate_dataset(
         data_dict = raw_data[ep_idx]
 
         # imgs_per_cam, state, action, velocity, effort = load_raw_episode_data(ep_path)
+        data_dict = flatten_dict(data_dict)
         frame_list = [v.shape[0] for k, v in data_dict.items()]
-        num_frames = data_dict["/observations/state"].shape[0]
+        num_frames = data_dict["observations.state"].shape[0]
         if not all(x == num_frames for x in frame_list):
             raise ValueError(
                 f"Number of frames in each feature should be the same, but got {frame_list} for episode {ep_idx}."
@@ -416,15 +438,21 @@ def populate_dataset(
 
         for i in range(num_frames):
             frame = {
-                "observation.state": data_dict["/observations/state"][i],
+                "observation.state": data_dict["observations.state"][i],
                 "action": data_dict["action"][i],
             }
 
             for camera, img_array in data_dict.items():
                 if "images" not in camera:
                     continue
-                camera_idx = camera.split("/")[-1]  # e.g., "cam1"
-                frame[f"observation.images.{cam_mapping[camera_idx]}"] = img_array[i]
+                camera_idx = camera.split(".")[-1]  # e.g., "cam1"
+                # Convert image from BGR to RGB
+                # print("img_array[i].shape:", img_array[i].shape)
+                if img_array[i].ndim == 3 and img_array[i].shape[2] != 3:
+                    img = einops.rearrange(img_array[i], "c h w -> h w c")  # (C, H, W) -> (H, W, C)
+                    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+                    # img = enipos.rearrange(img, (0, 2, 1))  # (H, W, C) -> (C, H, W)
+                frame[f"observation.images.{cam_mapping[camera_idx]}"] = img
             
             frame["task"] = task
 
@@ -471,6 +499,8 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("ros_mcap_file_or_folder", help="input bag path (folder or filepath) to read from")
     parser.add_argument("param_json_file", help="input parameter JSON file path")
+    parser.add_argument("repo_id", help="Hugging Face repo ID to save the dataset")
+    parser.add_argument("task_name", help="Task name for the dataset")
 
     args = parser.parse_args()
     bags = []
@@ -492,13 +522,15 @@ def main():
         # 读取mcap文件
         dataset = read_bag(bag, args.param_json_file)
         raw_data.append(dataset)
+    print(f"Read {len(raw_data)} bags successfully.")
+    # print("raw_data[0] :", raw_data[0])
     # Convert to LeRobot dataset format
     print(f"Converting {len(raw_data)} bags to LeRobot dataset format...")
     convert_to_lerobot(
         raw_data=raw_data,
-        repo_id="qbb/pick_bottle_test",
-        task="example_task",
-        episodes=[0,1],
+        repo_id=args.repo_id,
+        task=args.task_name,
+        episodes=None,
         push_to_hub=False,
         is_mobile=False,
         mode="video",
