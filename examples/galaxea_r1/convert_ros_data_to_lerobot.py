@@ -114,47 +114,47 @@ def read_bag(input_bag: str, param_file: str = None):
         if topic == params_map["observations"]["images"]["cam1"]:
             msg = deserialize_message(data, CompressedImage)
             cam1.append(msg.data)
-            cam1_stamp.append(int(msg.header.stamp.sec * 1e3))
+            cam1_stamp.append(int(msg.header.stamp.sec * 1e3+ msg.header.stamp.nanosec * 1e-6))
         elif topic == params_map["observations"]["images"]["cam2"]:
             msg = deserialize_message(data, CompressedImage)
             cam2.append(msg.data)
-            cam2_stamp.append(int(msg.header.stamp.sec * 1e3))
+            cam2_stamp.append(int(msg.header.stamp.sec * 1e3+ msg.header.stamp.nanosec * 1e-6))
         elif topic == params_map["observations"]["images"]["cam3"]:
             msg = deserialize_message(data, CompressedImage)
             cam3.append(msg.data)
-            cam3_stamp.append(int(msg.header.stamp.sec * 1e3))
+            cam3_stamp.append(int(msg.header.stamp.sec * 1e3+ msg.header.stamp.nanosec * 1e-6))
         elif topic == params_map["observations"]["state"]["arm_l_state"]:
             msg = deserialize_message(data, JointState)
             arm_l_state.append(np.array(msg.position[0:7]))
-            arm_l_state_stamp.append(int(msg.header.stamp.sec * 1e3))
+            arm_l_state_stamp.append(int(msg.header.stamp.sec * 1e3+ msg.header.stamp.nanosec * 1e-6))
         elif topic == params_map["observations"]["state"]["arm_r_state"]:
             msg = deserialize_message(data, JointState)
             arm_r_state.append(np.array(msg.position[0:7]))
-            arm_r_state_stamp.append(int(msg.header.stamp.sec * 1e3))
+            arm_r_state_stamp.append(int(msg.header.stamp.sec * 1e3+ msg.header.stamp.nanosec * 1e-6))
         elif topic == params_map["observations"]["state"]["gripper_l_state"]:
             msg = deserialize_message(data, JointState)
             gripper_l_state.append(msg.position[0])
-            gripper_l_state_stamp.append(int(msg.header.stamp.sec * 1e3))
+            gripper_l_state_stamp.append(int(msg.header.stamp.sec * 1e3+ msg.header.stamp.nanosec * 1e-6))
         elif topic == params_map["observations"]["state"]["gripper_r_state"]:
             msg = deserialize_message(data, JointState)
             gripper_r_state.append(msg.position[0])
-            gripper_r_state_stamp.append(int(msg.header.stamp.sec * 1e3))
+            gripper_r_state_stamp.append(int(msg.header.stamp.sec * 1e3+ msg.header.stamp.nanosec * 1e-6))
         elif topic == params_map["action"]["arm_l_action"]:
             msg = deserialize_message(data, JointState)
             arm_l_action.append(np.array(msg.position[0:7]))
-            arm_l_action_stamp.append(int(msg.header.stamp.sec * 1e3))
+            arm_l_action_stamp.append(int(msg.header.stamp.sec * 1e3+ msg.header.stamp.nanosec * 1e-6))
         elif topic == params_map["action"]["arm_r_action"]:
             msg = deserialize_message(data, JointState)
             arm_r_action.append(np.array(msg.position[0:7]))
-            arm_r_action_stamp.append(int(msg.header.stamp.sec * 1e3))
+            arm_r_action_stamp.append(int(msg.header.stamp.sec * 1e3+ msg.header.stamp.nanosec * 1e-6))
         elif topic == params_map["action"]["gripper_l_action"]:
             msg = deserialize_message(data, JointState)
             gripper_l_action.append(msg.position[0])
-            gripper_l_action_stamp.append(int(msg.header.stamp.sec * 1e3))
+            gripper_l_action_stamp.append(int(msg.header.stamp.sec * 1e3+ msg.header.stamp.nanosec * 1e-6))
         elif topic == params_map["action"]["gripper_r_action"]:
             msg = deserialize_message(data, JointState)
             gripper_r_action.append(msg.position[0])
-            gripper_r_action_stamp.append(int(msg.header.stamp.sec * 1e3))
+            gripper_r_action_stamp.append(int(msg.header.stamp.sec * 1e3+ msg.header.stamp.nanosec * 1e-6))
     del reader
     # Convert lists to numpy arrays
     arm_l_state = np.asarray(arm_l_state, dtype=np.float32)
@@ -222,13 +222,17 @@ def read_bag(input_bag: str, param_file: str = None):
                 cv2.CV_32FC1,
             )
     np_idx = 0
+    last_time = time.time()
+    print("Processing frames...")
     for time_idx in range(first_index, len(cam3_stamp)):
         time_now = cam3_stamp[time_idx]
         img = cv2.imdecode(np.frombuffer(cam3[time_idx], np.uint8), cv2.IMREAD_COLOR)
         vla_datas["observations"]["images"]["cam3"][np_idx] = np.transpose(img, (2, 0, 1))
+
         other_idx = find_closest_index_ascending(cam1_stamp, time_now)
         img = cv2.imdecode(np.frombuffer(cam1[other_idx], np.uint8), cv2.IMREAD_COLOR)
         vla_datas["observations"]["images"]["cam1"][np_idx] = np.transpose(img, (2, 0, 1))
+        
         other_idx = find_closest_index_ascending(cam2_stamp, time_now)
         img = cv2.imdecode(np.frombuffer(cam2[other_idx], np.uint8), cv2.IMREAD_COLOR)
         img = distortion_correction(img, head_rectify_map)
@@ -254,7 +258,8 @@ def read_bag(input_bag: str, param_file: str = None):
         other_idx = find_closest_index_ascending(gripper_r_action_stamp, time_now)
         vla_datas["action"][np_idx, 15:16] = gripper_r_action[other_idx]
         np_idx += 1
-        print(f"Processing frame {np_idx}/{frame_num}", end="\r")
+        cost_time = time.time() - last_time
+        print(f"Processed frame {np_idx}/{frame_num}, cost time: {cost_time:.2f}s", end="\r")
     return vla_datas
 
 def find_all_mcap_files(input_path: str):
