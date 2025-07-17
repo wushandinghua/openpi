@@ -770,10 +770,10 @@ _CONFIGS = [
     ),
     # fine-tuning galaxea r1 pro configs
     TrainConfig(
-        name="pi0_galexea_lora",
+        name="pi0_galaxea_lora",
         model=pi0.Pi0Config(action_horizon=10, paligemma_variant="gemma_2b_lora", action_expert_variant="gemma_300m_lora"),
         data=LeRobotAirbotDataConfig(
-            repo_id="qbb/open_close_tap_0612_pick",
+            repo_id="qbb/pick_bottle_galaxea_r1",
             base_config=DataConfig(
                 local_files_only=True,  # Set to True for local-only datasets.
                 prompt_from_task=True,
