@@ -22,8 +22,8 @@ uv pip install matplotlib==3.10.0
 uv pip install matplotlib-inline==0.1.7
 uv pip install -e packages/openpi-client
 
-3.exapmle usage: 
-python examples/galaxea_r1/main.py --args.host "192.168.3.101" --args.port 8000 --args.instruction "pick up the banana with one of your arm and put it in the black fruit basket"
+2.exapmle usage: 
+python examples/galaxea_r1/main.py --args.host "192.168.3.101" --args.port 8000 --args.instruction "pick up a bottle and put it down into the box"
 """
 
 @dataclasses.dataclass

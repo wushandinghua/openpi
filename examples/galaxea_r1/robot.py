@@ -119,8 +119,31 @@ class Robot(Node):
             self.print_status,
             callback_group=self.control_callback_group
         )
+        camera_matrix = np.array([
+            [1006.0582118247934, 0.0, 960.5697664900398],
+            [0.0, 1003.6652333957827, 553.0467321454616],
+            [0.0, 0.0, 1.0]
+        ], dtype=np.float32)
+        distortion_coefficients = np.array([
+            -0.38154841832755654, 0.19326013419893498, -0.002474956309358131, -0.000250071109775985, -0.0581107488155821
+        ], dtype=np.float32)
+        self.rectify_map = cv2.initUndistortRectifyMap(
+            camera_matrix, distortion_coefficients, None, camera_matrix, (1920, 1080), cv2.CV_32FC1
+        )
         
         self.get_logger().info("多线程机器人节点启动完成")
+    
+    def distortion_correction(self, image):
+        """对图像进行畸变校正"""
+        try:
+            if image is None or self.rectify_map is None:
+                raise ValueError("图像或校正映射不能为空")
+            # 使用校正映射进行畸变校正
+            image = cv2.remap(image, self.rectify_map[0], self.rectify_map[1], cv2.INTER_LINEAR)
+        except Exception as e:
+            print(f"畸变校正失败: {str(e)}")
+            return image
+        return image
 
     def head_image_callback(self, msg):
         with self.image_lock:
@@ -238,7 +261,7 @@ class Robot(Node):
     def get_head_image(self):
         with self.image_lock:
             """获取头部图像"""
-            img = self.cam_high.copy() if self.cam_high is not None else None
+            img = self.distortion_correction(self.cam_high.copy()) if self.cam_high is not None else None
             return cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
     def get_wrist_l_image(self):
@@ -271,7 +294,7 @@ class Robot(Node):
         """获取机器人的关节状态和图像"""
         with self.image_lock, self.joint_lock:
             img1 = self.cam_left.copy() if self.cam_left is not None else None
-            img2 = self.cam_high.copy() if self.cam_high is not None else None
+            img2 = self.distortion_correction(self.cam_high.copy()) if self.cam_high is not None else None
             img3 = self.cam_right.copy() if self.cam_right is not None else None
             return {
                 'head_image': cv2.cvtColor(img2, cv2.COLOR_BGR2RGB),
