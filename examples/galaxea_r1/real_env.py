@@ -39,7 +39,7 @@ class RealEnv:
     def setup_robots(self):
         # reboot robot
         command = "reboot robot"
-        action = [0.6631915 ,  0.78404254,  0.2606383 , -1.8106383 ,  1.0406383 , -0.34085107, -0.3042553 ,  78.13088 ,  
+        action = [0.6631915 ,  0.78404254,  0.2606383 , -1.8106383 ,  1.0406383 , -0.34085107, -0.3042553 ,  77.13088 ,  
                   0.6308511 , -0.7497872 , -0.22723404, -1.8687234 , -0.9682979 , -0.30085108,  0.23170213, 77.408394]
         self.robot.arm_l_joint_control(np.array(action[:8], dtype=np.float32))
         self.robot.arm_r_joint_control(np.array(action[8:16], dtype=np.float32))
@@ -48,7 +48,7 @@ class RealEnv:
     def get_observation(self):
         obs = self.robot.get_robot_joints_and_img()
         ret = {}
-        ret["observation.state"] = np.concatenate(obs["arm_l_state"], obs["arm_r_state"])
+        ret["observation.state"] = np.concatenate([obs["arm_l_state"], obs["arm_r_state"]])
         ret[f"observation.images.{CAM_HIGH}"] = obs["head_image"]
         ret[f"observation.images.{CAM_LEFT_WRIST}"] = obs["wrist_l_image"]
         ret[f"observation.images.{CAM_RIGHT_WRIST}"] = obs["wrist_r_image"]

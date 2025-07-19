@@ -79,7 +79,7 @@ class Robot(Node):
         # 控制发布器
         self.arm_l_publisher = self.create_publisher(
             JointState,
-            '/motion_control/control_arm_left',
+            '/vla/control_arm_left',
             qos_profile
         )
         self.gripper_l_publisher = self.create_publisher(
@@ -89,7 +89,7 @@ class Robot(Node):
         )
         self.arm_r_publisher = self.create_publisher(
             JointState,
-            '/motion_control/control_arm_right',
+            '/vla/control_arm_right',
             qos_profile
         )
         self.gripper_r_publisher = self.create_publisher(
@@ -182,7 +182,7 @@ class Robot(Node):
         with self.joint_lock:
             try:
                 if len(msg.position) >= 7:
-                    self.arm_l_state[:7] = [msg.position[i].item() for i in range(7)]
+                    self.arm_l_state[:7] = [msg.position[i] for i in range(7)]
                     self.joint_count += 1
                 else:
                     self.get_logger().error("Received invalid arm left state")
@@ -193,7 +193,7 @@ class Robot(Node):
         with self.joint_lock:
             try:
                 if len(msg.position) >= 1:
-                    self.arm_l_state[7] = msg.position[0].item()
+                    self.arm_l_state[7] = msg.position[0]
                     self.joint_count += 1
                 else:
                     self.get_logger().error("Received invalid gripper left state")
@@ -204,7 +204,7 @@ class Robot(Node):
         with self.joint_lock:
             try:
                 if len(msg.position) >= 7:
-                    self.arm_r_state[:7] = [msg.position[i].item() for i in range(7)]
+                    self.arm_r_state[:7] = [msg.position[i] for i in range(7)]
                     self.joint_count += 1
                 else:
                     self.get_logger().error("Received invalid arm right state")
@@ -215,7 +215,7 @@ class Robot(Node):
         with self.joint_lock:
             try:
                 if len(msg.position) >= 1:
-                    self.arm_r_state[7] = msg.position[0].item()
+                    self.arm_r_state[7] = msg.position[0]
                     self.joint_count += 1
                 else:
                     self.get_logger().error("Received invalid gripper right state")
@@ -231,9 +231,9 @@ class Robot(Node):
             arm_msg.header.stamp = timestamp
             gripper_msg.header.stamp = timestamp
             
-            arm_msg.position = [joint_positions[i].item() for i in range(7)]
+            arm_msg.position = joint_positions.tolist()[:7]
             
-            gripper_msg.position = [joint_positions[7].item()]
+            gripper_msg.position = [joint_positions.tolist()[7]]
             
             self.arm_l_publisher.publish(arm_msg)
             self.gripper_l_publisher.publish(gripper_msg)
@@ -249,9 +249,9 @@ class Robot(Node):
             arm_msg.header.stamp = timestamp
             gripper_msg.header.stamp = timestamp
 
-            arm_msg.position = [joint_positions[i].item() for i in range(7)]
+            arm_msg.position = joint_positions.tolist()[:7]
 
-            gripper_msg.position = [joint_positions[7].item()]
+            gripper_msg.position = [joint_positions.tolist()[7]]
             
             self.arm_r_publisher.publish(arm_msg)
             self.gripper_r_publisher.publish(gripper_msg)
