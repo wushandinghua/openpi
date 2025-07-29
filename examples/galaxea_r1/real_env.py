@@ -38,12 +38,18 @@ class RealEnv:
 
     def setup_robots(self):
         # reboot robot
+        """
         command = "reboot robot"
-        action = [0.6631915 ,  0.78404254,  0.2606383 , -1.8106383 ,  1.0406383 , -0.34085107, -0.3042553 ,  77.13088 ,  
-                  0.6308511 , -0.7497872 , -0.22723404, -1.8687234 , -0.9682979 , -0.30085108,  0.23170213, 77.408394]
+        action = [0.663, 0.786, 0.263, -1.814, 1.042, -0.342, -0.305,  77.13088 ,  
+                  0.663, -0.786, -0.263, -1.813, -1.042, -0.342, 0.305, 77.408394]
         self.robot.arm_l_joint_control(np.array(action[:8], dtype=np.float32))
         self.robot.arm_r_joint_control(np.array(action[8:16], dtype=np.float32))
+        print("****" * 10)
+        time.sleep(5)
+        print("****" * 10)
         print(f"real env setup cmd:{command}, sleep time:{constants.DT}")
+        """
+        self.robot.init_torso_and_arms()
 
     def get_observation(self):
         obs = self.robot.get_robot_joints_and_img()

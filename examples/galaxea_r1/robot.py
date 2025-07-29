@@ -6,6 +6,8 @@ from rclpy.executors import MultiThreadedExecutor
 from rclpy.callback_groups import ReentrantCallbackGroup, MutuallyExclusiveCallbackGroup
 from sensor_msgs.msg import CompressedImage
 from sensor_msgs.msg import JointState
+from hdas_msg.msg import MotorControl
+
 import numpy as np
 import cv2
 import rclpy
@@ -22,6 +24,8 @@ class Robot(Node):
         # QoS profile for durability
         qos_profile = QoSProfile(depth=10)
         qos_profile.durability = QoSDurabilityPolicy.TRANSIENT_LOCAL
+        # 躯干控制
+        self.torso_joint_state_pub_real = self.create_publisher(JointState, '/motion_target/target_joint_state_torso', qos_profile)
         
         # 图像订阅器 - 使用独立的回调组
         self.head_image_subscriber = self.create_subscription(
@@ -77,27 +81,40 @@ class Robot(Node):
         )
         
         # 控制发布器
-        self.arm_l_publisher = self.create_publisher(
-            JointState,
+        self.arm_l_real_publisher = self.create_publisher(
+            MotorControl,
             '/vla/control_arm_left',
             qos_profile
         )
         self.gripper_l_publisher = self.create_publisher(
             JointState,
-            '/motion_control/control_gripper_left',
+            '/motion_target/target_position_gripper_left',
             qos_profile
         )
-        self.arm_r_publisher = self.create_publisher(
-            JointState,
+        self.arm_r_real_publisher = self.create_publisher(
+            MotorControl,
             '/vla/control_arm_right',
             qos_profile
         )
         self.gripper_r_publisher = self.create_publisher(
             JointState,
-            '/motion_control/control_gripper_right',
+            '/motion_target/target_position_gripper_right',
             qos_profile
         )
-        
+        self.arm_l_publisher = self.create_publisher(
+            JointState,
+            '/motion_target/target_joint_state_arm_left',
+            qos_profile
+        )
+        self.arm_r_publisher = self.create_publisher(
+            JointState,
+            '/motion_target/target_joint_state_arm_right',
+            qos_profile
+        )
+        self.arm_real_joint = MotorControl()
+        self.arm_real_joint.v_des = [0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4]
+        self.arm_real_joint.kp = [2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0]
+        self.arm_real_joint.kd = [25.0, 25.0, 25.0, 25.0, 25.0, 25.0, 25.0]
         # 初始化数据存储
         self.cam_left = np.zeros((480, 640, 3), dtype=np.uint8)
         self.cam_high = np.zeros((1080, 1920, 3), dtype=np.uint8)
@@ -132,7 +149,49 @@ class Robot(Node):
         )
         
         self.get_logger().info("多线程机器人节点启动完成")
-    
+
+    def init_torso_and_arms(self):
+        print("初始化躯干和手臂位姿...")
+        #time.sleep(2)
+        joints_init = JointState()
+        #joints_init.velocity = [0.5,0.8,0.7,0.7]
+        #joints_init.position = [0.6845, -1.555, -0.9805, -0.06]
+        #self.torso_joint_state_pub_real.publish(joints_init)
+        #time.sleep(2)
+        #joints_init.velocity = [0.8,0.8,0.8,0.8,2.0,2.0,2.0]
+        #joints_init.position = [0.663, 0.786, 0.263, -1.814, 1.042, -0.342, -0.305]
+        #self.arm_l_publisher.publish(joints_init)
+        #joints_init.velocity = [0.0]
+        #joints_init.position = [100.0]
+        #self.gripper_l_publisher.publish(joints_init)
+        #time.sleep(1)
+        #joints_init.velocity = [0.8,0.8,0.8,0.8,2.0,2.0,2.0]
+        #joints_init.position = [0.663, -0.786, -0.263, -1.813, -1.042, -0.342, 0.305]
+        #self.arm_r_publisher.publish(joints_init)
+        #joints_init.velocity = [0.0]
+        #joints_init.position = [100.0]
+        #self.gripper_l_publisher.publish(joints_init)
+        #time.sleep(5)
+        time.sleep(2)
+        joints_init.velocity = [0.8,0.8,0.8,0.8,2.0,2.0,2.0]
+        joints_init.position = [0.622, 0.7385, 0.3053, -1.876, 0.9053, -0.4885, -0.3674]
+        self.arm_l_publisher.publish(joints_init)
+        joints_init.velocity = [0.0]
+        joints_init.position = [100.0]
+        self.gripper_l_publisher.publish(joints_init)
+        time.sleep(1)
+        joints_init.velocity = [0.8,0.8,0.8,0.8,2.0,2.0,2.0]
+        joints_init.position = [0.622, -0.7385, -0.3053, -1.876, -0.9053, -0.4885, 0.3674]
+        self.arm_r_publisher.publish(joints_init)
+        joints_init.velocity = [0.0]
+        joints_init.position = [100.0]
+        self.gripper_l_publisher.publish(joints_init)
+        time.sleep(2)
+        joints_init.velocity = [0.5,0.8,0.7,0.7]
+        joints_init.position = [0.5128, -1.3681, -1.3559, 0.0]
+        self.torso_joint_state_pub_real.publish(joints_init)
+        time.sleep(5)
+
     def distortion_correction(self, image):
         """对图像进行畸变校正"""
         try:
@@ -293,16 +352,18 @@ class Robot(Node):
     def get_robot_joints_and_img(self):
         """获取机器人的关节状态和图像"""
         with self.image_lock, self.joint_lock:
-            img1 = self.cam_left.copy() if self.cam_left is not None else None
-            img2 = self.distortion_correction(self.cam_high.copy()) if self.cam_high is not None else None
-            img3 = self.cam_right.copy() if self.cam_right is not None else None
-            return {
+            
+            img1 = self.cam_left if self.cam_left is not None else None
+            img2 = self.distortion_correction(self.cam_high) if self.cam_high is not None else None
+            img3 = self.cam_right if self.cam_right is not None else None
+            ret =  {
                 'head_image': cv2.cvtColor(img2, cv2.COLOR_BGR2RGB),
                 'wrist_l_image': cv2.cvtColor(img1, cv2.COLOR_BGR2RGB),
                 'wrist_r_image': cv2.cvtColor(img3, cv2.COLOR_BGR2RGB),
-                'arm_l_state': self.arm_l_state.copy() if self.arm_l_state is not None else None,
-                'arm_r_state': self.arm_r_state.copy() if self.arm_r_state is not None else None
+                'arm_l_state': self.arm_l_state if self.arm_l_state is not None else None,
+                'arm_r_state': self.arm_r_state if self.arm_r_state is not None else None
             }
+            return ret
     
     def print_status(self):
         """定期打印状态信息"""

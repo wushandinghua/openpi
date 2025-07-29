@@ -7,9 +7,9 @@
             "gripper_r_state": "/hdas/feedback_gripper_right"
         },
         "images": {
-            "cam1": "/hdas/wrist_left/camera/image/compressed",
+            "cam1": "/hdas/camera_wrist_left/left_raw/image_raw_color/compressed",
             "cam2": "/hdas/camera_head/left_raw/image_raw_color/compressed",
-            "cam3": "/hdas/wrist_right/camera/image/compressed"
+            "cam3": "/hdas/camera_wrist_right/right_raw/image_raw_color/compressed"
         }
     },
     "action": {

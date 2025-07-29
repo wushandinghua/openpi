@@ -773,7 +773,8 @@ _CONFIGS = [
         name="pi0_galaxea_lora",
         model=pi0.Pi0Config(action_horizon=10, paligemma_variant="gemma_2b_lora", action_expert_variant="gemma_300m_lora"),
         data=LeRobotAirbotDataConfig(
-            repo_id="qbb/pick_bottle_galaxea_r1",
+            # repo_id="qbb/pick_bottle_galaxea_r1",
+            repo_id="qbb/pick_bottle_galaxea_r1_0728",
             base_config=DataConfig(
                 local_files_only=True,  # Set to True for local-only datasets.
                 prompt_from_task=True,
@@ -796,6 +797,32 @@ _CONFIGS = [
         batch_size=32,
         num_workers=4,
         fsdp_devices=1,
+        keep_period=2000,
+        checkpoint_base_dir="/data/openpi/checkpoints"
+    ),
+    TrainConfig(
+        name="pi0_galaxea",
+        model=pi0.Pi0Config(action_horizon=10),
+        data=LeRobotAirbotDataConfig(
+            repo_id="qbb/pick_bottle_galaxea_r1_0728",
+            base_config=DataConfig(
+                local_files_only=True,  # Set to True for local-only datasets.
+                prompt_from_task=True,
+                action_sequence_keys=("action",)
+            ),
+            num_joints=7,  # Galaxea has 7 joints.
+        ),
+        weight_loader=weight_loaders.CheckpointWeightLoader("s3://openpi-assets/checkpoints/pi0_base/params"),
+        num_train_steps=10_000,
+        lr_schedule=_optimizer.CosineDecaySchedule(
+            warmup_steps=500,
+            peak_lr=3.54e-5,
+            decay_steps=10_000,
+            decay_lr=3.54e-6
+        ),
+        batch_size=64,
+        num_workers=8,
+        fsdp_devices=2,
         keep_period=2000,
         checkpoint_base_dir="/data/openpi/checkpoints"
     ),
