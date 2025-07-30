@@ -176,16 +176,16 @@ class Robot(Node):
         joints_init.velocity = [0.8,0.8,0.8,0.8,2.0,2.0,2.0]
         joints_init.position = [0.622, 0.7385, 0.3053, -1.876, 0.9053, -0.4885, -0.3674]
         self.arm_l_publisher.publish(joints_init)
-        joints_init.velocity = [0.0]
-        joints_init.position = [100.0]
+        joints_init.velocity = [0.5]
+        joints_init.position = [77.2]
         self.gripper_l_publisher.publish(joints_init)
         time.sleep(1)
         joints_init.velocity = [0.8,0.8,0.8,0.8,2.0,2.0,2.0]
         joints_init.position = [0.622, -0.7385, -0.3053, -1.876, -0.9053, -0.4885, 0.3674]
         self.arm_r_publisher.publish(joints_init)
-        joints_init.velocity = [0.0]
-        joints_init.position = [100.0]
-        self.gripper_l_publisher.publish(joints_init)
+        joints_init.velocity = [0.5]
+        joints_init.position = [77.2]
+        self.gripper_r_publisher.publish(joints_init)
         time.sleep(2)
         joints_init.velocity = [0.5,0.8,0.7,0.7]
         joints_init.position = [0.5128, -1.3681, -1.3559, 0.0]

@@ -4,6 +4,7 @@ import copy
 from typing import Optional, List
 import dm_env
 import numpy as np
+import copy
 
 from examples.airbot import constants
 from examples.galaxea_r1 import robot
@@ -35,6 +36,8 @@ class RealEnv:
 
         # new galaxea controller
         self.robot = robot.start_robot()
+        self._chunk_size = 10
+        self._last_observation = None
 
     def setup_robots(self):
         # reboot robot
@@ -58,6 +61,7 @@ class RealEnv:
         ret[f"observation.images.{CAM_HIGH}"] = obs["head_image"]
         ret[f"observation.images.{CAM_LEFT_WRIST}"] = obs["wrist_l_image"]
         ret[f"observation.images.{CAM_RIGHT_WRIST}"] = obs["wrist_r_image"]
+        self._last_observation = copy.deepcopy(ret)
         return ret
         
 
@@ -69,18 +73,25 @@ class RealEnv:
             # Reboot robot 
             self.setup_robots()
             print("real env setup finished")
-        return dm_env.TimeStep(
-            step_type=dm_env.StepType.FIRST, reward=self.get_reward(), discount=None, observation=self.get_observation()
-        )
+        # return dm_env.TimeStep(
+        #     step_type=dm_env.StepType.FIRST, reward=self.get_reward(), discount=None, observation=self.get_observation()
+        # )
+        return self.get_observation()
 
     def step(self, action):
+        cur_step = action.get("cur_step")
+        action = action["actions"]
         assert action.shape[-1] == 16
         self.robot.arm_l_joint_control(action[:8])
         self.robot.arm_r_joint_control(action[8:16])
         time.sleep(constants.DT)
-        return dm_env.TimeStep(
-            step_type=dm_env.StepType.MID, reward=self.get_reward(), discount=None, observation=self.get_observation()
-        )
+        # return dm_env.TimeStep(
+        #     step_type=dm_env.StepType.MID, reward=self.get_reward(), discount=None, observation=self.get_observation()
+        # )
+        if cur_step >= (self._chunk_size - 1):
+            return self.get_observation()
+        
+        return self._last_observation
 
 
 def make_real_env(reset_position: Optional[List[float]] = None, reset_type: int = 3) -> RealEnv:
