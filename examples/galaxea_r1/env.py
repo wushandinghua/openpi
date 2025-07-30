@@ -62,10 +62,11 @@ class GalaxeaEnvironment(_environment.Environment):
             #)
             #obs["images"][cam_name] = einops.rearrange(img, "h w c -> c h w")
             if "images" not in key: continue
+            if obs[key].shape[1] == self._render_height and obs[key].shape[2] == self._render_width:continue
             img = image_tools.convert_to_uint8(
                 image_tools.resize_with_pad(obs[key], self._render_height, self._render_width)
             )
-            obs[key] = einops.rearrange(img, "h w c -> c h w")
+            obs[key] = einops.rearrange(img, "h w c -> c h w") if img.shape[0] != 3 else img
 
         #print("cam wrist image shape after:", obs["images"][f"{CAM_WRIST}"].shape)
         #print("cam exterior image shape after:", obs["images"][f"{CAM_WRIST}"].shape)
