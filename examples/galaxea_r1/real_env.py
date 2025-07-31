@@ -6,9 +6,9 @@ import dm_env
 import numpy as np
 import copy
 
-from examples.airbot import constants
+from examples.galaxea_r1 import constants
 from examples.galaxea_r1 import robot
-from examples.airbot.constants import CAM_HIGH, CAM_LEFT_WRIST, CAM_RIGHT_WRIST
+from examples.galaxea_r1.constants import CAM_HIGH, CAM_LEFT_WRIST, CAM_RIGHT_WRIST
 
 
 class RealEnv:
@@ -31,12 +31,12 @@ class RealEnv:
     """
 
     def __init__(self, reset_position: Optional[List[float]] = None, reset_type: int = 3):
-        self._reset_position = reset_position[:7] if reset_position else constants.DEFAULT_RESET_POSITION
+        self._reset_position = reset_position[:16] if reset_position else constants.DEFAULT_RESET_POSITION
         self._reset_type = reset_type
 
         # new galaxea controller
         self.robot = robot.start_robot()
-        self._chunk_size = 10
+        self._chunk_size = constants.CHUNK_SIZE
         self._last_observation = None
 
     def setup_robots(self):
@@ -61,7 +61,8 @@ class RealEnv:
         ret[f"observation.images.{CAM_HIGH}"] = obs["head_image"]
         ret[f"observation.images.{CAM_LEFT_WRIST}"] = obs["wrist_l_image"]
         ret[f"observation.images.{CAM_RIGHT_WRIST}"] = obs["wrist_r_image"]
-        self._last_observation = copy.deepcopy(ret)
+        #self._last_observation = copy.deepcopy(ret)
+        self._last_observation = ret
         return ret
         
 
@@ -84,11 +85,11 @@ class RealEnv:
         assert action.shape[-1] == 16
         self.robot.arm_l_joint_control(action[:8])
         self.robot.arm_r_joint_control(action[8:16])
-        time.sleep(constants.DT)
         # return dm_env.TimeStep(
         #     step_type=dm_env.StepType.MID, reward=self.get_reward(), discount=None, observation=self.get_observation()
         # )
         if cur_step >= (self._chunk_size - 1):
+            time.sleep(constants.DT * 10)
             return self.get_observation()
         
         return self._last_observation

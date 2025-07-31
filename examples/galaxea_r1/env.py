@@ -7,7 +7,7 @@ from typing_extensions import override
 import numpy as np
 
 from examples.galaxea_r1 import real_env as _real_env
-from examples.airbot.constants import CAM_HIGH, CAM_LEFT_WRIST, CAM_RIGHT_WRIST
+from examples.galaxea_r1.constants import CAM_HIGH, CAM_LEFT_WRIST, CAM_RIGHT_WRIST
 
 
 class GalaxeaEnvironment(_environment.Environment):
@@ -66,7 +66,8 @@ class GalaxeaEnvironment(_environment.Environment):
             img = image_tools.convert_to_uint8(
                 image_tools.resize_with_pad(obs[key], self._render_height, self._render_width)
             )
-            obs[key] = einops.rearrange(img, "h w c -> c h w") if img.shape[0] != 3 else img
+            #obs[key] = einops.rearrange(img, "h w c -> c h w") if img.shape[0] != 3 else img
+            obs[key] = img
 
         #print("cam wrist image shape after:", obs["images"][f"{CAM_WRIST}"].shape)
         #print("cam exterior image shape after:", obs["images"][f"{CAM_WRIST}"].shape)

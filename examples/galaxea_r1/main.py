@@ -9,8 +9,8 @@ import tyro
 import sys
 sys.path.append("./")
 from examples.galaxea_r1 import env as _env
-from examples.airbot import video_display as _video_display
-from examples.airbot.constants import CAM_HIGH, CAM_LEFT_WRIST, CAM_RIGHT_WRIST
+from examples.galaxea_r1 import video_display as _video_display
+from examples.galaxea_r1.constants import CAM_HIGH, CAM_LEFT_WRIST, CAM_RIGHT_WRIST
 """
 cd /path/to/openpi
 
@@ -58,7 +58,7 @@ def main(args: Args) -> None:
         ),
         subscribers=[cam_subscriber],
         #subscribers=[],
-        max_hz=20,
+        max_hz=10,
         num_episodes=args.num_episodes,
         max_episode_steps=args.max_episode_steps,
     )
