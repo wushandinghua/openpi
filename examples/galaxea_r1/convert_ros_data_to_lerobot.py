@@ -521,25 +521,58 @@ def main():
             raise FileNotFoundError(f"Input bag file does not exist: {args.ros_mcap_file_or_folder}")
         else:
             bags.append(args.ros_mcap_file_or_folder)
-    raw_data = []
+    # raw_data = []
+    if (LEROBOT_HOME / args.repo_id).exists():
+        shutil.rmtree(LEROBOT_HOME / args.repo_id)
+    dataset = create_empty_dataset(
+        args.repo_id,
+        robot_type="aloha",
+        mode="video",
+        has_effort=False,
+        has_velocity=False,
+        dataset_config=DEFAULT_DATASET_CONFIG,
+    )
+    i = 0
     for bag in bags:
         print(f"Reading bag file: {bag}")
         # 读取mcap文件
-        dataset = read_bag(bag, args.param_json_file)
-        raw_data.append(dataset)
-    print(f"Read {len(raw_data)} bags successfully.")
-    # print("raw_data[0] :", raw_data[0])
-    # Convert to LeRobot dataset format
-    print(f"Converting {len(raw_data)} bags to LeRobot dataset format...")
-    convert_to_lerobot(
-        raw_data=raw_data,
-        repo_id=args.repo_id,
-        task=args.task_name,
-        episodes=None,
-        push_to_hub=False,
-        is_mobile=False,
-        mode="video",
-    )
+        raw_data = read_bag(bag, args.param_json_file)
+        # raw_data.append(dataset)
+
+        print(f"Converting {bag} data to LeRobot dataset format...")
+        data_dict = flatten_dict(raw_data)
+        frame_list = [v.shape[0] for k, v in data_dict.items()]
+        num_frames = data_dict["observations.state"].shape[0]
+        if not all(x == num_frames for x in frame_list):
+            raise ValueError(
+                f"Number of frames in each feature should be the same, but got {frame_list} for episode {i}."
+            )
+
+        for i in range(num_frames):
+            frame = {
+                "observation.state": data_dict["observations.state"][i],
+                "action": data_dict["action"][i],
+            }
+
+            for camera, img_array in data_dict.items():
+                if "images" not in camera:
+                    continue
+                camera_idx = camera.split(".")[-1]  # e.g., "cam1"
+                # Convert image from BGR to RGB
+                # print("img_array[i].shape:", img_array[i].shape)
+                if img_array[i].ndim == 3 and img_array[i].shape[2] != 3:
+                    img = einops.rearrange(img_array[i], "c h w -> h w c")  # (C, H, W) -> (H, W, C)
+                    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+                    # img = enipos.rearrange(img, (0, 2, 1))  # (H, W, C) -> (C, H, W)
+                frame[f"observation.images.{cam_mapping[camera_idx]}"] = img
+            
+            frame["task"] = args.task_name
+
+            dataset.add_frame(frame)
+
+        dataset.save_episode()
+        i+=1
+    return dataset
 
 if __name__ == "__main__":
     """
