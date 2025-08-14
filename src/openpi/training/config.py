@@ -804,7 +804,10 @@ _CONFIGS = [
         name="pi0_galaxea",
         model=pi0.Pi0Config(action_horizon=10),
         data=LeRobotAirbotDataConfig(
-            repo_id="qbb/pick_bottle_galaxea_r1_0728",
+            # repo_id="qbb/pick_bottle_galaxea_r1_0728",
+            # repo_id="qbb/pick_bottle_galaxea_r1_0801_02",
+            # repo_id="qbb/lift_the_packing_box",
+            repo_id="qbb/put_down_the_packing_box",
             base_config=DataConfig(
                 local_files_only=True,  # Set to True for local-only datasets.
                 prompt_from_task=True,
@@ -813,11 +816,14 @@ _CONFIGS = [
             num_joints=7,  # Galaxea has 7 joints.
         ),
         weight_loader=weight_loaders.CheckpointWeightLoader("s3://openpi-assets/checkpoints/pi0_base/params"),
-        num_train_steps=10_000,
+        # num_train_steps=10_000,
+        num_train_steps=14_000,
         lr_schedule=_optimizer.CosineDecaySchedule(
-            warmup_steps=500,
+            # warmup_steps=500,
+            warmup_steps=700,
             peak_lr=3.54e-5,
-            decay_steps=10_000,
+            # decay_steps=10_000,
+            decay_steps=14_000,
             decay_lr=3.54e-6
         ),
         batch_size=64,
