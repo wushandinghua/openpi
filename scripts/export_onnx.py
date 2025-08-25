@@ -169,7 +169,7 @@ if __name__ == "__main__":
     print("args.checkpoint_dir:", args.checkpoint_dir)
     print("args.checkpoint_config_name:", args.checkpoint_config_name)
     print("args.output_dir:", args.output_dir)
-    model = train_config.model.load(_model.restore_params(checkpoint_dir / "params", dtype=jnp.float16))
+    model = train_config.model.load(_model.restore_params(checkpoint_dir / "params", dtype=jnp.float32))
     print("model:", model.__ne__)
     
     # 导出为 ONNX
