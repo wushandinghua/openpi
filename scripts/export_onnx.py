@@ -5,6 +5,7 @@ import numpy as np
 import onnx
 from jax.experimental import jax2tf
 import tensorflow as tf
+from flax import traverse_util
 import flax.nnx as nnx
 from openpi.models.pi0 import Pi0
 from openpi.models import model as _model
@@ -68,24 +69,14 @@ def jax2tf_saved_model(inference_fn, params, save_path, batch_size, action_dim, 
             return {k: extract_value(v) for k, v in p.items()}
         elif isinstance(p, nnx.variablelib.VariableState):
             return p.value
-        return p
-            
-    
-    # print("params:", params)
-    # params_plain = jax.tree_util.tree_map(extract_value, params.dict())
+        return p   
+
     params_plain = extract_value(params)
     # print("params_plain:", params_plain)
     print("get value finished")
 
-    def to_tf_variable(x):
-        if isinstance(x, (float, int, bool, list, tuple)):
-            return tf.Variable(x)
-        elif isinstance(x, dict):
-            return {k: to_tf_variable(v) for k, v in x.items()}
-        elif isinstance(x, (jax.Array)):
-            return tf.Variable(tf.convert_to_tensor(np.asarray(x, copy=False)))
-        return x
-    params_vars = to_tf_variable(params_plain)
+    params_vars = tf.nest.map_structure(tf.Variable, params_plain)
+    del params_plain
     # print("params_vars:", params_vars)
     print("to tf variable finished")
     
@@ -100,18 +91,23 @@ def jax2tf_saved_model(inference_fn, params, save_path, batch_size, action_dim, 
     ]
     my_model = tf.Module()
     my_model._variables = tf.nest.flatten(params_vars)
-    predict_fn = jax2tf.convert(inference_fn, enable_xla=False, with_gradient=False)
+    """
+    predict_fn = jax2tf.convert(inference_fn, native_serialization=False, with_gradient=False)
     @tf.function(autograph=False, jit_compile=True, input_signature=input_specs)
     def predict_tf(*args):
         return predict_fn(params_vars, *args)
     my_model.f = predict_tf
-    tf.saved_model.save(my_model, f'{save_path}/tf_model')
+    """
+    prediction_tf = lambda *inputs: jax2tf.convert(inference_fn, native_serialization=False, with_gradient=False)(params_vars, *inputs)
+    my_model.f = tf.function(prediction_tf, jit_compile=True, autograph=False, input_signature=input_specs)
+    tf.saved_model.save(my_model, f'{save_path}/tf_model', options=tf.saved_model.SaveOptions(experimental_custom_gradients=True))
 
     # class SavedModel(tf.Module):
     #     def __init__(self, params_vars):
     #         super().__init__()
     #         # 将参数作为类属性来确保追踪
-    #         self.params_vars = params_vars
+    #         # to_tf_virable = lambda x: tf.Variable(x, trainable=False, dtype=tf.as_type(x)) if not isinstance(x, tf.Variable) else x
+    #         self.params_vars = tf.nest.map_structure(tf.Variable, params_vars)
         
     #     @tf.function(autograph=False, jit_compile=True)
     #     def __call__(self, rng, images_base, images_left, images_right, state, tokens, token_mask):
@@ -153,6 +149,8 @@ def export_to_onnx(model: Pi0, save_path: str, batch_size: int = 1):
     
     # method2: Convert to tensorflow and then convert to onnx
     jax2tf_saved_model(inference_fn, params, save_path, batch_size, model.action_dim, model.max_token_len)
+    
+    # python -m tf2onnx.convert --saved-model /dev/shm/tmp/tf_model --output /dev/shm/pi0_galaxea_lora.onnx --opset 21 --large_model --verbose
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Merge datasets from multiple sources.")
@@ -169,7 +167,7 @@ if __name__ == "__main__":
     print("args.checkpoint_dir:", args.checkpoint_dir)
     print("args.checkpoint_config_name:", args.checkpoint_config_name)
     print("args.output_dir:", args.output_dir)
-    model = train_config.model.load(_model.restore_params(checkpoint_dir / "params", dtype=jnp.float32))
+    model = train_config.model.load(_model.restore_params(checkpoint_dir / "params", dtype=jnp.float16))
     print("model:", model.__ne__)
     
     # 导出为 ONNX
