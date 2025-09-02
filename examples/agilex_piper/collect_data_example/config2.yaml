@@ -1,0 +1,73 @@
+---
+leader_number: 2
+follower_number: 2
+leader_can: ["can0", "can1"]
+follower_can: ["can0", "can1"]
+start_arm_joint_position: [
+    [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+    ],
+    [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+    ],
+    [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+    ],
+    [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+    ]
+]
+start_eef_joint_position: [0.0, 0.0, 0.0, 0.0]  # useless for encoder teachers
+root_path: "data"
+task_name: "task_000_100"
+max_frames: 1200  # Maximum number of frames to process
+num_image_writers_per_camera: 3  # Number of image writers per camera
+fps: 20
+cameras:
+    cam1:
+        camera_index: 2
+        fps: 25
+        width: 640
+        height: 480
+        color_mode: "rgb"
+        camera_usb_hardware_index: "usb-0:1.1.2"
+    cam2:
+        camera_index: 4
+        fps: 25
+        width: 640
+        height: 480
+        color_mode: "rgb"
+        camera_usb_hardware_index: "usb-0:2.2"
+    cam3:
+        camera_index: 6
+        fps: 25
+        width: 640
+        height: 480
+        color_mode: "rgb"
+        camera_usb_hardware_index: "usb-0:1.3.2"
+
+    
