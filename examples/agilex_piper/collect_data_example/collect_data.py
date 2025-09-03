@@ -1214,10 +1214,10 @@ class PiperPlay:
             self.follower_following_flags[i] = False  # 表示第 i 个 follower 开始跟随
             print(f"Stopping follower {i} follow thread...")
 
-        for i, robot in enumerate(self.follower_robot):
-            robot.MotionCtrl_2(0x01, 0x01, 50)
-            robot.EnableArm()
-            print(f"Follower {i} switched to joint control mode")
+        # for i, robot in enumerate(self.follower_robot):
+        #     robot.MotionCtrl_2(0x01, 0x01, 50)
+        #     robot.EnableArm()
+        #     print(f"Follower {i} switched to joint control mode")
 
         self.follower_threads = []
         self.follower_stop_flags = []
@@ -1233,11 +1233,11 @@ class PiperPlay:
         """
         Enters the passive mode, where leader robots are controlled manually (preparation for demonstration).
         """
-        args = self.config
-        # 同时启动从机械臂的跟随模式
-        for i in range(args.follower_number):
-            self.follower_following_flags[i] = True  # 表示第 i 个 follower 开始跟随
-            self.follower_start(self.leader_robot[i], self.follower_robot[i])
+        # args = self.config
+        # # 同时启动从机械臂的跟随模式
+        # for i in range(args.follower_number):
+        #     self.follower_following_flags[i] = True  # 表示第 i 个 follower 开始跟随
+        #     self.follower_start(self.leader_robot[i], self.follower_robot[i])
         self._state_mode = "passive"
 
     def clear_boundary_error(self) -> None:
