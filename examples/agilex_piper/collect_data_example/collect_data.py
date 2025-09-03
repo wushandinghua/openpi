@@ -1163,15 +1163,15 @@ class PiperPlay:
         # 先链接上全部的机械臂
         for i, robot in enumerate(self.leader_robot):
             robot.ConnectPort()
-            robot.MasterSlaveConfig(0xFA, 0, 0, 0)
-            robot.MotionCtrl_2(0x01, 0x01, 0, 0, 0, 0x03)
+            # robot.MasterSlaveConfig(0xFA, 0, 0, 0)
+            # robot.MotionCtrl_2(0x01, 0x01, 0, 0, 0, 0x03)
             while( not robot.EnablePiper()):
                 time.sleep(0.01)
 
         for i, robot in enumerate(self.follower_robot):
             robot.ConnectPort()
-            robot.MasterSlaveConfig(0xFC, 0, 0, 0)
-            robot.MotionCtrl_2(0x01, 0x01, 0, 0, 0, 0x02)
+            # robot.MasterSlaveConfig(0xFC, 0, 0, 0)
+            # robot.MotionCtrl_2(0x01, 0x01, 0, 0, 0, 0x02)
             while( not robot.EnablePiper()):
                 time.sleep(0.01)
         # 停止跟随（如果有的话）
