@@ -1095,6 +1095,14 @@ class OpenCVCamera:
 
         return camera_ids
 
+def get_joint_positions(joint_state):
+    joints = [joint_state.joint_1, joint_state.joint_2, joint_state.joint_3,
+              joint_state.joint_4, joint_state.joint_5, joint_state.joint_6]
+    return joints
+
+def get_gripper_position(gripper_state):
+    return gripper_state.grippers_angle
+
 class PiperPlay:
     """
     A class to manage the Airbot robot and cameras for data collection and robotic control.
@@ -1270,9 +1278,11 @@ class PiperPlay:
             # print(f"→ Leader {i} joint_position: {leader_robot[i].get_joint_pos()}")
             # print(f"→ Leader {i} end_position: {leader_robot[i].get_eef_pos()}")
             # print(f"→ Leader {i} pose: {leader_robot[i].get_end_pose()}")
-            action_arm_jq.extend(leader_robot[i].GetArmJointCtrl())  # 获取各个关节的位置
+            joints_ctrl_msg = leader_robot[i].GetArmJointCtrl()
+            action_arm_jq.extend(get_joint_positions(joints_ctrl_msg.joint_ctrl))  # 获取各个关节的位置
+            gripper_ctrl_msg = leader_robot[i].GetArmGripperCtrl()
             action_eef_jq.append(
-                leader_robot[i].GetArmGripperCtrl()
+                get_gripper_position(gripper_ctrl_msg.gripper_ctrl)
             )  # 获取夹爪的张开幅度（如果没有夹爪或者夹爪没准备好，返回None）
             pose = [[0] * 3, [0] * 4] #获取末端的空间位姿
             action_eef_pose.extend(pose[0] + pose[1])  # xyz + quat
@@ -1289,8 +1299,10 @@ class PiperPlay:
             # print(f"→ Follower {i} joint_position: {follower_robot[i].get_joint_pos()}")
             # print(f"→ Follower {i} end_position: {follower_robot[i].get_eef_pos()}")
             # print(f"→ Follower {i} pose: {follower_robot[i].get_end_pose()}")
-            obs_arm_jq.extend(follower_robot[i].GetArmJointMsgs())
-            obs_eef_jq.append(follower_robot[i].GetArmGripperMsgs())
+            join_msg = follower_robot[i].GetArmJointMsgs()
+            obs_arm_jq.extend(get_joint_positions(join_msg.joint_state))  # 获取各个关节的位置
+            gripper_msg = follower_robot[i].GetArmGripperMsgs()
+            obs_eef_jq.append(get_gripper_position(gripper_msg.gripper_state))  # 获取夹爪的张开幅度
             pose = [[0] * 3, [0] * 4] #获取末端的空间位姿
             obs_eef_pose.extend(pose[0] + pose[1])
         data["observation/arm/joint_position"] = obs_arm_jq
