@@ -1136,14 +1136,14 @@ class PiperPlay:
         # Initialize leader robots
         for i in range(args.leader_number):
             leader_robot.append(
-                PiperArm(can_name=args.leader_can[i], judge_flag=True).MasterSlaveConfig(0xFA, 0, 0, 0)
+                PiperArm(can_name=args.leader_can[i])
             )
             time.sleep(0.1)
             print(f"leader robot {i} 初始化成功")
 
         for i in range(args.follower_number):
             follower_robot.append(
-                PiperArm(can_name=args.follower_can[i], judge_flag=True).MasterSlaveConfig(0xFC, 0, 0, 0)
+                PiperArm(can_name=args.follower_can[i])
             )
             time.sleep(0.1)
             print(f"follower robot {i} 初始化成功")
@@ -1163,11 +1163,15 @@ class PiperPlay:
         # 先链接上全部的机械臂
         for i, robot in enumerate(self.leader_robot):
             robot.ConnectPort()
+            robot.MasterSlaveConfig(0xFA, 0, 0, 0)
+            robot.MotionCtrl_2(0x01, 0x01, 0, 0, 0, 0x03)
             while( not robot.EnablePiper()):
                 time.sleep(0.01)
 
         for i, robot in enumerate(self.follower_robot):
             robot.ConnectPort()
+            robot.MasterSlaveConfig(0xFC, 0, 0, 0)
+            robot.MotionCtrl_2(0x01, 0x01, 0, 0, 0, 0x02)
             while( not robot.EnablePiper()):
                 time.sleep(0.01)
         # 停止跟随（如果有的话）
