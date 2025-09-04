@@ -1189,6 +1189,8 @@ class PiperPlay:
         for i, robot in enumerate(self.leader_robot):
             robot.ReqMasterArmMoveToHome(mode=2)
             print(f"leader {i} and follower {i} moved to zero position")
+            time.sleep(1)
+            robot.ReqMasterArmMoveToHome(mode=0)
 
 
     def follower_start(self, leader, follower, delay: float = 0.01):
@@ -1361,6 +1363,8 @@ class PiperPlay:
         for i, robot in enumerate(self.leader_robot):
             robot.ReqMasterArmMoveToHome(mode=2)
             print(f"leader {i} and follower {i} moved to zero position")
+            time.sleep(1)
+            robot.ReqMasterArmMoveToHome(mode=0)
         print("Robot exited")
 
     def get_state_mode(self) -> str:

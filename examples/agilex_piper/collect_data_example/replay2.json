@@ -1,0 +1,325 @@
+{
+	"id": "f2c667ab-aa93-41de-9809-657ca3d06a5f",
+	"timestamp": 1734079064450996525,
+	"metadata": {
+		"version": "1.2.1",
+		"operator": "Hongrui",
+		"task": "place-cup-on-fixed-plate",
+		"station_id": "3784D4BA-87AF-47E7-B86D-42CA1904AA77",
+		"driver_version": "3.1.5",
+		"topics": {
+			"/action1/arm/joint_position": {
+				"description": "airbot-play-short",
+				"type": "jointstate",
+				"sn": "PZ25C0240100048X",
+				"firmware_version": "3.1.5"
+			},
+			"/action1/eef/joint_position": {
+				"description": "airbot-play-short",
+				"type": "jointstate",
+				"sn": "PZ25C0240100048X",
+				"firmware_version": "3.1.5"
+			},
+			"/action1/eef/pose": {
+				"description": "airbot-play-short",
+				"type": "jointstate",
+				"sn": "PZ25C0240100048X",
+				"firmware_version": "3.1.5"
+			},
+			"/observation1/arm/joint_position": {
+				"description": "airbot-play-short",
+				"type": "jointstate",
+				"sn": "PZ25C0240100048X",
+				"firmware_version": "3.1.5"
+			},
+			"/observation1/eef/joint_position": {
+				"description": "airbot-play-short",
+				"type": "jointstate",
+				"sn": "PZ25C0240100048X",
+				"firmware_version": "3.1.5"
+			},
+			"/observation1/eef/pose": {
+				"description": "airbot-play-short",
+				"type": "jointstate",
+				"sn": "PZ25C0240100048X",
+				"firmware_version": "3.1.5"
+			},
+			"/action2/arm/joint_position": {
+				"description": "airbot-play-short",
+				"type": "jointstate",
+				"sn": "PZ25C0240100048X",
+				"firmware_version": "3.1.5"
+			},
+			"/action2/eef/joint_position": {
+				"description": "airbot-play-short",
+				"type": "jointstate",
+				"sn": "PZ25C0240100048X",
+				"firmware_version": "3.1.5"
+			},
+			"/action2/eef/pose": {
+				"description": "airbot-play-short",
+				"type": "jointstate",
+				"sn": "PZ25C0240100048X",
+				"firmware_version": "3.1.5"
+			},
+			"/observation2/arm/joint_position": {
+				"description": "airbot-play-short",
+				"type": "jointstate",
+				"sn": "PZ25C0240100048X",
+				"firmware_version": "3.1.5"
+			},
+			"/observation2/eef/joint_position": {
+				"description": "airbot-play-short",
+				"type": "jointstate",
+				"sn": "PZ25C0240100048X",
+				"firmware_version": "3.1.5"
+			},
+			"/observation2/eef/pose": {
+				"description": "airbot-play-short",
+				"type": "jointstate",
+				"sn": "PZ25C0240100048X",
+				"firmware_version": "3.1.5"
+			},
+			"/images/cam1": {
+				"description": "DSJ-2062-309",
+				"type": "image",
+				"width": 640,
+				"height": 480,
+				"encoding": "H264",
+				"distortion_model": null,
+				"distortion_params": null,
+				"intrinsics": null,
+				"fov": 120.0,
+				"start_time": 1733377253041
+			},
+			"/images/cam2": {
+				"description": "DSJ-2062-309",
+				"type": "image",
+				"width": 640,
+				"height": 480,
+				"encoding": "H264",
+				"distortion_model": null,
+				"distortion_params": null,
+				"intrinsics": null,
+				"fov": 120.0,
+				"start_time": 1733377253041
+			},
+			"/images/cam3": {
+				"description": "DSJ-2062-309",
+				"type": "image",
+				"width": 640,
+				"height": 480,
+				"encoding": "H264",
+				"distortion_model": null,
+				"distortion_params": null,
+				"intrinsics": null,
+				"fov": 120.0,
+				"start_time": 1733377253041
+			}
+		}
+	},
+	"data": {
+		"/action1/arm/joint_position": [
+			{
+				"t": 1733377253041,
+				"data": {
+					"pos": [
+						-0.0707637146115303,
+						-1.3601510524749756,
+						1.6172655820846558,
+						1.3826581239700317,
+						-1.2132829427719116,
+						-1.5627145767211914
+					],
+					"vel": null,
+					"eff": null
+				}
+			}
+		],
+		"/observation1/arm/joint_position": [
+			{
+				"t": 1733377253041,
+				"data": {
+					"pos": [
+						-0.07343403995037079,
+						-1.3578622341156006,
+						1.6100175380706787,
+						1.3902876377105713,
+						-1.2434195280075073,
+						-1.5562294721603394
+					],
+					"vel": null,
+					"eff": null
+				}
+			}
+		],
+		"/action1/eef/joint_position": [
+			{
+				"t": 1733377253041,
+				"data": {
+					"t": [
+						0.0
+					],
+					"r": []
+				}
+			}
+		],
+		"/action1/eef/pose": [
+			{
+				"t": 1733377253041,
+				"data": {
+					"t": [
+						0.4276363253593445,
+						-0.05395035073161125,
+						0.3399697542190552
+					],
+					"r": [
+						-0.049857497215270996,
+						0.45983245968818665,
+						-0.09608973562717438,
+						0.8813825249671936
+					]
+				}
+			}
+		],
+		"/observation1/eef/joint_position": [
+			{
+				"t": 1733377253041,
+				"data": {
+					"t": [
+						0.00965609960258007
+					],
+					"r": []
+				}
+			}
+		],
+		"/observation1/eef/pose": [
+			{
+				"t": 1733377253041,
+				"data": {
+					"t": [
+						0.4748963713645935,
+						-0.07446777820587158,
+						0.25514575839042664
+					],
+					"r": [
+						-0.0422884039580822,
+						0.4750601053237915,
+						-0.09687121957540512,
+						0.8735820055007935
+					]
+				}
+			}
+		],
+        "/action2/arm/joint_position": [
+			{
+				"t": 1733377253041,
+				"data": {
+					"pos": [
+						-0.0707637146115303,
+						-1.3601510524749756,
+						1.6172655820846558,
+						1.3826581239700317,
+						-1.2132829427719116,
+						-1.5627145767211914
+					],
+					"vel": null,
+					"eff": null
+				}
+			}
+		],
+		"/observation2/arm/joint_position": [
+			{
+				"t": 1733377253041,
+				"data": {
+					"pos": [
+						-0.07343403995037079,
+						-1.3578622341156006,
+						1.6100175380706787,
+						1.3902876377105713,
+						-1.2434195280075073,
+						-1.5562294721603394
+					],
+					"vel": null,
+					"eff": null
+				}
+			}
+		],
+		"/action2/eef/joint_position": [
+			{
+				"t": 1733377253041,
+				"data": {
+					"t": [
+						0.0
+					],
+					"r": []
+				}
+			}
+		],
+		"/action2/eef/pose": [
+			{
+				"t": 1733377253041,
+				"data": {
+					"t": [
+						0.4276363253593445,
+						-0.05395035073161125,
+						0.3399697542190552
+					],
+					"r": [
+						-0.049857497215270996,
+						0.45983245968818665,
+						-0.09608973562717438,
+						0.8813825249671936
+					]
+				}
+			}
+		],
+		"/observation2/eef/joint_position": [
+			{
+				"t": 1733377253041,
+				"data": {
+					"t": [
+						0.00965609960258007
+					],
+					"r": []
+				}
+			}
+		],
+		"/observation2/eef/pose": [
+			{
+				"t": 1733377253041,
+				"data": {
+					"t": [
+						0.4748963713645935,
+						-0.07446777820587158,
+						0.25514575839042664
+					],
+					"r": [
+						-0.0422884039580822,
+						0.4750601053237915,
+						-0.09687121957540512,
+						0.8735820055007935
+					]
+				}
+			}
+		],
+		"/images/cam1": [
+			{
+				"t": 1733377253041,
+				"data": "np.ndarray"
+			}
+		],
+		"/images/cam2": [
+			{
+				"t": 1733377253041,
+				"data": "np.ndarray"
+			}
+		],
+		"/images/cam3": [
+			{
+				"t": 1733377253041,
+				"data": "np.ndarray"
+			}
+		]
+	}
+}

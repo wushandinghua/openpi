@@ -1,0 +1,58 @@
+---
+leader_number: 1
+follower_number: 1
+leader_can: ["can0"]
+follower_can: ["can0"]
+start_arm_joint_position: [
+    [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+    ],
+    [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+    ],
+    [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+    ],
+    [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+    ]
+]
+root_path: "data"
+task_name: "task_000_100"
+max_frames: 1200  # Maximum number of frames to process
+num_image_writers_per_camera: 3  # Number of image writers per camera
+fps: 20
+cameras:
+    cam1:
+        camera_index: 2
+        fps: 30
+        width: 640
+        height: 480
+        color_mode: "rgb"
+        camera_usb_hardware_index: "usb-0:1.1:1.3"
+
+    
