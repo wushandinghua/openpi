@@ -832,6 +832,37 @@ _CONFIGS = [
         keep_period=2000,
         checkpoint_base_dir="/data/openpi/checkpoints"
     ),
+    # agilex piper
+    TrainConfig(
+        name="pi0_piper_lora",
+        model=pi0.Pi0Config(action_horizon=10, paligemma_variant="gemma_2b_lora", action_expert_variant="gemma_300m_lora"),
+        data=LeRobotAirbotDataConfig(
+            repo_id="qbb/pick_rubbish_piper_0906",
+            base_config=DataConfig(
+                local_files_only=True,  # Set to True for local-only datasets.
+                prompt_from_task=True,
+                action_sequence_keys=("action",)
+            ),
+            num_joints=6,  # piper has 6 joints.
+        ),
+        weight_loader=weight_loaders.CheckpointWeightLoader("s3://openpi-assets/checkpoints/pi0_base/params"),
+        num_train_steps=10_000,
+        lr_schedule=_optimizer.CosineDecaySchedule(
+            warmup_steps=500,
+            peak_lr=2.5e-5,
+            decay_steps=10_000,
+            decay_lr=2.5e-6
+        ),
+        freeze_filter=pi0.Pi0Config(
+            paligemma_variant="gemma_2b_lora", action_expert_variant="gemma_300m_lora"
+        ).get_freeze_filter(),
+        ema_decay=None,
+        batch_size=32,
+        num_workers=4,
+        fsdp_devices=1,
+        keep_period=2000,
+        checkpoint_base_dir="/data/openpi/checkpoints"
+    ),
     #
     # Fine-tuning Libero configs.
     #
