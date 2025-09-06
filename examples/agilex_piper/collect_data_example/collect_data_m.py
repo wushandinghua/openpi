@@ -1123,6 +1123,7 @@ class RosCamera(Node):
             config (dict): Configuration object containing the necessary parameters (e.g., topic name).
             **kwargs: Additional arguments passed to the class constructor (not used here).
         """
+        super().__init__('robot_node')
         self.config = SimpleNamespace(**config)
         # 创建回调组
         self.image_callback_group = ReentrantCallbackGroup()
