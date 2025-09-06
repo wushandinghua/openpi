@@ -41,10 +41,10 @@ from dataclasses import dataclass, field, replace
 import traceback
 import pyudev
 import sys
-sys.path.append("/opt/ros/foxy/lib/python3.8/site-packages")
-from rclpy.callback_groups import ReentrantCallbackGroup
-from sensor_msgs.msg import CompressedImage
-from rclpy.node import Node
+# sys.path.append("/opt/ros/foxy/lib/python3.8/site-packages")
+# from rclpy.callback_groups import ReentrantCallbackGroup
+# from sensor_msgs.msg import CompressedImage
+# from rclpy.node import Node
 
 # Monkey patch，自动忽略非法参数 like preset
 _original_save = Image.Image.save
@@ -1111,96 +1111,96 @@ class OpenCVCamera:
 
         return camera_ids
 
-class RosCamera(Node):
-    """
-    A class to manage ROS camera subscriptions and image retrieval.
-    This class handles the initialization, connection, and image capture from a ROS camera topic.
-    """
+# class RosCamera(Node):
+#     """
+#     A class to manage ROS camera subscriptions and image retrieval.
+#     This class handles the initialization, connection, and image capture from a ROS camera topic.
+#     """
 
-    def __init__(self, config: dict, **kwargs) -> None:
-        """
-        Initializes the RosCamera object by connecting to the specified ROS topic.
+#     def __init__(self, config: dict, **kwargs) -> None:
+#         """
+#         Initializes the RosCamera object by connecting to the specified ROS topic.
 
-        Args:
-            config (dict): Configuration object containing the necessary parameters (e.g., topic name).
-            **kwargs: Additional arguments passed to the class constructor (not used here).
-        """
-        super().__init__('robot_node')
-        self.config = SimpleNamespace(**config)
-        # 创建回调组
-        self.image_callback_group = ReentrantCallbackGroup()
+#         Args:
+#             config (dict): Configuration object containing the necessary parameters (e.g., topic name).
+#             **kwargs: Additional arguments passed to the class constructor (not used here).
+#         """
+#         super().__init__('robot_node')
+#         self.config = SimpleNamespace(**config)
+#         # 创建回调组
+#         self.image_callback_group = ReentrantCallbackGroup()
 
-        # 图像订阅器 - 使用独立的回调组
-        self.image_subscriber = self.create_subscription(
-            CompressedImage,
-            self.config.topic_name,
-            self.image_callback,
-            10, # queue size
-            callback_group=self.image_callback_group
-        )
+#         # 图像订阅器 - 使用独立的回调组
+#         self.image_subscriber = self.create_subscription(
+#             CompressedImage,
+#             self.config.topic_name,
+#             self.image_callback,
+#             10, # queue size
+#             callback_group=self.image_callback_group
+#         )
 
-        self.image = np.zeros((self.config.height, self.config.width, 3), dtype=np.uint8)
-        self.image_lock = threading.Lock()
+#         self.image = np.zeros((self.config.height, self.config.width, 3), dtype=np.uint8)
+#         self.image_lock = threading.Lock()
 
-        self.is_connected = False
-        self.logs = {}
+#         self.is_connected = False
+#         self.logs = {}
     
-    def image_callback(self, msg):
-        with self.image_lock:
-            try:
-                np_arr = np.frombuffer(msg.data, np.uint8)
-                self.image = cv2.imdecode(np_arr, cv2.IMREAD_UNCHANGED)
-                if self.config.color_mode == "rgb":
-                    self.image = cv2.cvtColor(self.image, cv2.COLOR_BGR2RGB)
-                if self.image is None:
-                    self.get_logger().error("Failed to decode ros image")
-            except Exception as e:
-                self.get_logger().error(f"ros image callback error: {e}")
+#     def image_callback(self, msg):
+#         with self.image_lock:
+#             try:
+#                 np_arr = np.frombuffer(msg.data, np.uint8)
+#                 self.image = cv2.imdecode(np_arr, cv2.IMREAD_UNCHANGED)
+#                 if self.config.color_mode == "rgb":
+#                     self.image = cv2.cvtColor(self.image, cv2.COLOR_BGR2RGB)
+#                 if self.image is None:
+#                     self.get_logger().error("Failed to decode ros image")
+#             except Exception as e:
+#                 self.get_logger().error(f"ros image callback error: {e}")
 
-    def connect(self) -> None:
-        """
-        Connects to the ROS topic and sets up the subscriber for image messages.
-        """
-        time.sleep(0.5)
-        self.is_connected = True
+#     def connect(self) -> None:
+#         """
+#         Connects to the ROS topic and sets up the subscriber for image messages.
+#         """
+#         time.sleep(0.5)
+#         self.is_connected = True
     
-    def disconnect(self) -> None:
-        """
-        Disconnects from the ROS topic and cleans up resources.
-        """
-        if not self.is_connected:
-            raise ValueError(
-                f"RosCamera({self.config.camera_index}) is not connected. Try running `camera.connect()` first."
-            )
-        time.sleep(0.5)
-        self.is_connected = False
+#     def disconnect(self) -> None:
+#         """
+#         Disconnects from the ROS topic and cleans up resources.
+#         """
+#         if not self.is_connected:
+#             raise ValueError(
+#                 f"RosCamera({self.config.camera_index}) is not connected. Try running `camera.connect()` first."
+#             )
+#         time.sleep(0.5)
+#         self.is_connected = False
 
-    def async_read(self) -> np.ndarray:
-        """
-        Reads the latest image from the ROS topic.
+#     def async_read(self) -> np.ndarray:
+#         """
+#         Reads the latest image from the ROS topic.
 
-        Returns:
-            np.ndarray: The latest color image frame.
+#         Returns:
+#             np.ndarray: The latest color image frame.
 
-        Raises:
-            ValueError: If the camera is not connected or if no image has been received yet.
-        """
-        if not self.is_connected:
-            raise ValueError(
-                f"RosCamera({self.config.camera_index}) is not connected. Try running `camera.connect()` first."
-            )
+#         Raises:
+#             ValueError: If the camera is not connected or if no image has been received yet.
+#         """
+#         if not self.is_connected:
+#             raise ValueError(
+#                 f"RosCamera({self.config.camera_index}) is not connected. Try running `camera.connect()` first."
+#             )
         
-        with self.image_lock:
-            if self.image is None:
-                raise ValueError(
-                    f"RosCamera({self.config.camera_index}) has not received any image yet."
-                )
-            return self.image
+#         with self.image_lock:
+#             if self.image is None:
+#                 raise ValueError(
+#                     f"RosCamera({self.config.camera_index}) has not received any image yet."
+#                 )
+#             return self.image
     
-    def __del__(self) -> None:
-        """Ensure proper cleanup of resources when the object is destroyed."""
-        if getattr(self, "is_connected", False):
-            self.disconnect()
+#     def __del__(self) -> None:
+#         """Ensure proper cleanup of resources when the object is destroyed."""
+#         if getattr(self, "is_connected", False):
+#             self.disconnect()
 
 def get_joint_positions(joint_state):
     joints = [joint_state.joint_1, joint_state.joint_2, joint_state.joint_3,
@@ -1231,10 +1231,10 @@ class PiperPlay:
         for name in self.cameras:
             if self.cameras[name]["camera_type"] == "opencv":
                 self.cameras[name] = OpenCVCamera(self.cameras[name])
-            elif self.cameras[name]["camera_type"] == "ros":
-                import rclpy
-                rclpy.init()
-                self.cameras[name] = RosCamera(self.cameras[name])
+            # elif self.cameras[name]["camera_type"] == "ros":
+            #     import rclpy
+            #     rclpy.init()
+            #     self.cameras[name] = RosCamera(self.cameras[name])
         self.logs = {}
         self.__init()
         # 初始化线程列表
