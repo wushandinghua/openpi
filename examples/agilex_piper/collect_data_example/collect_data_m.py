@@ -1229,7 +1229,12 @@ class PiperPlay:
         self.cameras = self.config.cameras
         # Initialize cameras
         for name in self.cameras:
-            self.cameras[name] = OpenCVCamera(self.cameras[name]) if self.cameras[name]["camera_type"] == "opencv" else RosCamera(self.cameras[name])
+            if self.cameras[name]["camera_type"] == "opencv":
+                self.cameras[name] = OpenCVCamera(self.cameras[name])
+            elif self.cameras[name]["camera_type"] == "ros":
+                import rclpy
+                rclpy.init()
+                self.cameras[name] = RosCamera(self.cameras[name])
         self.logs = {}
         self.__init()
         # 初始化线程列表
