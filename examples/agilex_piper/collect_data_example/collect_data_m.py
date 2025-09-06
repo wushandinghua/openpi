@@ -40,6 +40,8 @@ from typing import Protocol, Dict, List, Optional, Union, List
 from dataclasses import dataclass, field, replace
 import traceback
 import pyudev
+import sys
+sys.path.append("/opt/ros/foxy/lib/python3.8/site-packages")
 from rclpy.callback_groups import ReentrantCallbackGroup
 from sensor_msgs.msg import CompressedImage
 from rclpy.node import Node
