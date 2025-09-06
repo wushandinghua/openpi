@@ -63,7 +63,7 @@ cameras:
         color_mode: "rgb"
         camera_usb_hardware_index: ""
         camera_type: "ros"
-        topic_name: "/hdas/camera_head/left_raw/image_raw_color/compressed"
+        topic_name: "/camera/color/image_raw/compressed"
     cam3:
         camera_index: 6
         fps: 30
