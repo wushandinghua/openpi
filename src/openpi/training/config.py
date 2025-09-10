@@ -735,7 +735,6 @@ _CONFIGS = [
         data=LeRobotKinovaDataConfig(
             repo_id="qbb/pick_and_put_in_drawer_v1",
             base_config=DataConfig(
-                local_files_only=True,
                 prompt_from_task=True,
                 action_sequence_keys=("action",)
             ),
@@ -758,7 +757,6 @@ _CONFIGS = [
         data=LeRobotKinovaDataConfig(
             repo_id="qbb/pick_and_put_in_drawer_v1",
             base_config=DataConfig(
-                local_files_only=True,  # Set to True for local-only datasets.
                 prompt_from_task=True,
                 action_sequence_keys=("action",)
             ),
@@ -781,7 +779,6 @@ _CONFIGS = [
             repo_id="qbb/pick_bottle_pillbox_clean",
             #repo_id="qbb/pick_banana_bottle_pillbox_clean",
             base_config=DataConfig(
-                local_files_only=True,
                 prompt_from_task=True,
                 action_sequence_keys=("action",)
             ),
@@ -815,7 +812,6 @@ _CONFIGS = [
             #repo_id="qbb/pick_banana_bottle_pillbox_clean",
             #repo_id="qbb/pick_banana",
             base_config=DataConfig(
-                local_files_only=True,  # Set to True for local-only datasets.
                 prompt_from_task=True,
                 action_sequence_keys=("action",)
             ),
@@ -847,7 +843,6 @@ _CONFIGS = [
             #repo_id="qbb/pick_bottle_pillbox_clean",
             #repo_id="qbb/pick_banana_bottle_pillbox_clean",
             base_config=DataConfig(
-                local_files_only=True,  # Set to True for local-only datasets.
                 prompt_from_task=True,
                 action_sequence_keys=("action",)
             ),
@@ -882,7 +877,6 @@ _CONFIGS = [
             #repo_id="qbb/pick_bottle_pillbox_clean",
             #repo_id="qbb/pick_banana_bottle_pillbox_clean",
             base_config=DataConfig(
-                local_files_only=True,  # Set to True for local-only datasets.
                 prompt_from_task=True,
                 action_sequence_keys=("action",)
             ),
@@ -914,7 +908,6 @@ _CONFIGS = [
             #repo_id="qbb/pick_bottle_pillbox_clean",
             #repo_id="qbb/pick_banana_bottle_pillbox_clean",
             base_config=DataConfig(
-                local_files_only=True,  # Set to True for local-only datasets.
                 prompt_from_task=True,
                 action_sequence_keys=("action",)
             ),
@@ -945,7 +938,6 @@ _CONFIGS = [
             # repo_id="qbb/pick_bottle_galaxea_r1",
             repo_id="qbb/pick_bottle_galaxea_r1_0728",
             base_config=DataConfig(
-                local_files_only=True,  # Set to True for local-only datasets.
                 prompt_from_task=True,
                 action_sequence_keys=("action",)
             ),
@@ -978,7 +970,6 @@ _CONFIGS = [
             # repo_id="qbb/lift_the_packing_box",
             repo_id="qbb/put_down_the_packing_box",
             base_config=DataConfig(
-                local_files_only=True,  # Set to True for local-only datasets.
                 prompt_from_task=True,
                 action_sequence_keys=("action",)
             ),
@@ -1008,7 +999,6 @@ _CONFIGS = [
         data=LeRobotAirbotDataConfig(
             repo_id="qbb/gongjianghang_task_0907",
             base_config=DataConfig(
-                local_files_only=True,  # Set to True for local-only datasets.
                 prompt_from_task=True,
                 action_sequence_keys=("action",)
             ),
