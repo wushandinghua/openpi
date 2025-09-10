@@ -502,6 +502,14 @@ class LeRobotAirbotDataConfig(DataConfigFactory):
     
     @override
     def create(self, assets_dirs: pathlib.Path, model_config: _model.BaseModelConfig) -> DataConfig:
+        # The repack transform is *only* applied to the data coming from the dataset,
+        # and *not* during inference. We can use it to make inputs from the dataset look
+        # as close as possible to those coming from the inference environment (e.g. match the keys).
+        # Below, we match the keys in the dataset (which we defined in the data conversion script) to
+        # the keys we use in our inference pipeline (defined in the inference script for libero).
+        # For your own dataset, first figure out what keys your environment passes to the policy server
+        # and then modify the mappings below so your dataset's keys get matched to those target keys.
+        # The repack transform simply remaps key names here.
         # Make inputs look like they come from the Aitbot environment
         repack_transform = _transforms.Group(
             inputs=[
@@ -521,7 +529,7 @@ class LeRobotAirbotDataConfig(DataConfigFactory):
         # Prepare data for policy training
         # Convert images to uint8 numpy arrays, add masks
         data_transforms = _transforms.Group(
-            inputs=[Airbot_policy.AirbotInputs(action_dim=model_config.action_dim, model_type=model_config.model_type)],
+            inputs=[Airbot_policy.AirbotInputs(model_type=model_config.model_type)],
             outputs=[Airbot_policy.AirbotOutputs(num_joints=self.num_joints)],
         )
         # Use delta actions (not for gripper)
@@ -535,7 +543,7 @@ class LeRobotAirbotDataConfig(DataConfigFactory):
         model_transforms = ModelTransformFactory()(model_config)
 
         return dataclasses.replace(
-            self.create_base_config(assets_dirs),
+            self.create_base_config(assets_dirs, model_config),
             repack_transforms=repack_transform,
             data_transforms=data_transforms,
             model_transforms=model_transforms,
@@ -723,7 +731,7 @@ _CONFIGS = [
     # inference kinova config
     TrainConfig(
         name="pi0_kinova_v1",
-        model=pi0.Pi0Config(action_horizon=10),
+        model=pi0_config.Pi0Config(action_horizon=10),
         data=LeRobotKinovaDataConfig(
             repo_id="qbb/pick_and_put_in_drawer_v1",
             base_config=DataConfig(
@@ -746,7 +754,7 @@ _CONFIGS = [
     ),
     TrainConfig(
         name="pi0_kinova_v1_low_mem_finetune",
-        model=pi0.Pi0Config(action_horizon=10, paligemma_variant="gemma_2b_lora", action_expert_variant="gemma_300m_lora"),
+        model=pi0_config.Pi0Config(action_horizon=10, paligemma_variant="gemma_2b_lora", action_expert_variant="gemma_300m_lora"),
         data=LeRobotKinovaDataConfig(
             repo_id="qbb/pick_and_put_in_drawer_v1",
             base_config=DataConfig(
@@ -757,7 +765,7 @@ _CONFIGS = [
         ),
         weight_loader=weight_loaders.CheckpointWeightLoader("s3://openpi-assets/checkpoints/pi0_base/params"),
         num_train_steps=30_000,
-        freeze_filter=pi0.Pi0Config(
+        freeze_filter=pi0_config.Pi0Config(
             paligemma_variant="gemma_2b_lora", action_expert_variant="gemma_300m_lora"
         ).get_freeze_filter(),
         ema_decay=None,
@@ -768,7 +776,7 @@ _CONFIGS = [
     # fine-tuning airbot configs
     TrainConfig(
         name="pi0_airbot",
-        model=pi0.Pi0Config(action_horizon=10),
+        model=pi0_config.Pi0Config(action_horizon=10),
         data=LeRobotAirbotDataConfig(
             repo_id="qbb/pick_bottle_pillbox_clean",
             #repo_id="qbb/pick_banana_bottle_pillbox_clean",
@@ -793,7 +801,7 @@ _CONFIGS = [
     ),
     TrainConfig(
         name="pi0_airbot_lora",
-        model=pi0.Pi0Config(action_horizon=10, paligemma_variant="gemma_2b_lora", action_expert_variant="gemma_300m_lora"),
+        model=pi0_config.Pi0Config(action_horizon=10, paligemma_variant="gemma_2b_lora", action_expert_variant="gemma_300m_lora"),
         data=LeRobotAirbotDataConfig(
             #repo_id="qbb/flip_bbq",
             #repo_id="qbb/pick_bbq_place_plate",
@@ -820,7 +828,7 @@ _CONFIGS = [
             decay_steps=10_000,
             decay_lr=2.5e-6
         ),
-        freeze_filter=pi0.Pi0Config(
+        freeze_filter=pi0_config.Pi0Config(
             paligemma_variant="gemma_2b_lora", action_expert_variant="gemma_300m_lora"
         ).get_freeze_filter(),
         ema_decay=None,
@@ -832,7 +840,7 @@ _CONFIGS = [
     ),
     TrainConfig(
         name="pi0_airbot_lora_merge",
-        model=pi0.Pi0Config(action_horizon=10, paligemma_variant="gemma_2b_lora", action_expert_variant="gemma_300m_lora"),
+        model=pi0_config.Pi0Config(action_horizon=10, paligemma_variant="gemma_2b_lora", action_expert_variant="gemma_300m_lora"),
         data=LeRobotAirbotDataConfig(
             repo_id="qbb/paper_tasks_0624",
             #repo_id="qbb/bbq_task_0617",
@@ -852,7 +860,7 @@ _CONFIGS = [
             decay_steps=10_000,
             decay_lr=6.12e-6
         ),
-        freeze_filter=pi0.Pi0Config(
+        freeze_filter=pi0_config.Pi0Config(
             paligemma_variant="gemma_2b_lora", action_expert_variant="gemma_300m_lora"
         ).get_freeze_filter(),
         ema_decay=None,
@@ -864,7 +872,7 @@ _CONFIGS = [
     ),
     TrainConfig(
         name="pi0_airbot_lora_merge_less",
-        model=pi0.Pi0Config(action_horizon=10, paligemma_variant="gemma_2b_lora", action_expert_variant="gemma_300m_lora"),
+        model=pi0_config.Pi0Config(action_horizon=10, paligemma_variant="gemma_2b_lora", action_expert_variant="gemma_300m_lora"),
         data=LeRobotAirbotDataConfig(
             #repo_id="qbb/paper_tasks_0624",
             # repo_id="qbb/paper_open_tasks_0703",
@@ -887,7 +895,7 @@ _CONFIGS = [
             decay_steps=10_000,
             decay_lr=3.54e-6
         ),
-        freeze_filter=pi0.Pi0Config(
+        freeze_filter=pi0_config.Pi0Config(
             paligemma_variant="gemma_2b_lora", action_expert_variant="gemma_300m_lora"
         ).get_freeze_filter(),
         ema_decay=None,
@@ -932,7 +940,7 @@ _CONFIGS = [
     # fine-tuning galaxea r1 pro configs
     TrainConfig(
         name="pi0_galaxea_lora",
-        model=pi0.Pi0Config(action_horizon=10, paligemma_variant="gemma_2b_lora", action_expert_variant="gemma_300m_lora"),
+        model=pi0_config.Pi0Config(action_horizon=10, paligemma_variant="gemma_2b_lora", action_expert_variant="gemma_300m_lora"),
         data=LeRobotAirbotDataConfig(
             # repo_id="qbb/pick_bottle_galaxea_r1",
             repo_id="qbb/pick_bottle_galaxea_r1_0728",
@@ -951,7 +959,7 @@ _CONFIGS = [
             decay_steps=10_000,
             decay_lr=2.5e-6
         ),
-        freeze_filter=pi0.Pi0Config(
+        freeze_filter=pi0_config.Pi0Config(
             paligemma_variant="gemma_2b_lora", action_expert_variant="gemma_300m_lora"
         ).get_freeze_filter(),
         ema_decay=None,
@@ -963,7 +971,7 @@ _CONFIGS = [
     ),
     TrainConfig(
         name="pi0_galaxea",
-        model=pi0.Pi0Config(action_horizon=10),
+        model=pi0_config.Pi0Config(action_horizon=10),
         data=LeRobotAirbotDataConfig(
             # repo_id="qbb/pick_bottle_galaxea_r1_0728",
             # repo_id="qbb/pick_bottle_galaxea_r1_0801_02",
@@ -996,7 +1004,7 @@ _CONFIGS = [
     # agilex piper
     TrainConfig(
         name="pi0_piper_lora",
-        model=pi0.Pi0Config(action_horizon=10, paligemma_variant="gemma_2b_lora", action_expert_variant="gemma_300m_lora"),
+        model=pi0_config.Pi0Config(action_horizon=10, paligemma_variant="gemma_2b_lora", action_expert_variant="gemma_300m_lora"),
         data=LeRobotAirbotDataConfig(
             repo_id="qbb/gongjianghang_task_0907",
             base_config=DataConfig(
@@ -1007,22 +1015,48 @@ _CONFIGS = [
             num_joints=6,  # piper has 6 joints.
         ),
         weight_loader=weight_loaders.CheckpointWeightLoader("s3://openpi-assets/checkpoints/pi0_base/params"),
-        num_train_steps=10_000,
+        num_train_steps=4_000,
         lr_schedule=_optimizer.CosineDecaySchedule(
-            warmup_steps=500,
-            peak_lr=2.5e-5,
-            decay_steps=10_000,
-            decay_lr=2.5e-6
+            warmup_steps=200,
+            peak_lr=7.07e-5,
+            decay_steps=4_000,
+            decay_lr=7.07e-6
         ),
-        freeze_filter=pi0.Pi0Config(
+        freeze_filter=pi0_config.Pi0Config(
             paligemma_variant="gemma_2b_lora", action_expert_variant="gemma_300m_lora"
         ).get_freeze_filter(),
         ema_decay=None,
-        batch_size=32,
-        num_workers=4,
-        fsdp_devices=1,
-        keep_period=2000,
+        batch_size=256,
+        num_workers=32,
+        fsdp_devices=8,
+        keep_period=1000,
         checkpoint_base_dir="/data/openpi/checkpoints"
+    ),
+    # pi05 lora train config for airbot series
+    TrainConfig(
+        name="pi05_piper_lora",
+        model=pi0_config.Pi0Config(pi05=True, action_horizon=10, discrete_state_input=False, paligemma_variant="gemma_2b_lora", action_expert_variant="gemma_300m_lora"),
+        data=LeRobotAirbotDataConfig(
+            repo_id="qbb/gongjianghang_task_0907",
+            base_config=DataConfig(prompt_from_task=True, action_sequence_keys=("action",)),
+            num_joints=6,  # piper has 6 joints.
+        ),
+        batch_size=256,
+        num_workers=32,
+        fsdp_devices=8,
+        keep_period=1000,
+        checkpoint_base_dir="/data/openpi/checkpoints",
+        num_train_steps=4_000,
+        lr_schedule=_optimizer.CosineDecaySchedule(
+            warmup_steps=200,
+            peak_lr=7.07e-5,
+            decay_steps=4_000,
+            decay_lr=7.07e-5,
+        ),
+        freeze_filter=pi0_config.Pi0Config(pi05=True, action_horizon=10, discrete_state_input=False, paligemma_variant="gemma_2b_lora", action_expert_variant="gemma_300m_lora").get_freeze_filter(),
+        optimizer=_optimizer.AdamW(clip_gradient_norm=1.0),
+        ema_decay=0.999,
+        weight_loader=weight_loaders.CheckpointWeightLoader("gs://openpi-assets/checkpoints/pi05_base/params"),
     ),
     #
     # Fine-tuning Libero configs.
