@@ -140,10 +140,10 @@ def create_torch_dataset(
     dataset_meta = lerobot_dataset.LeRobotDatasetMetadata(repo_id)
     dataset = lerobot_dataset.LeRobotDataset(
         data_config.repo_id,
-        # use t+1 when use kinova data, because action = current state when collect data, else use t
         delta_timestamps={
             key: [t / dataset_meta.fps for t in range(action_horizon)] for key in data_config.action_sequence_keys
         },
+        #episodes=[i for i in range(len(dataset_meta.episodes)) if i not in [136,]],
     )
 
     if data_config.prompt_from_task:

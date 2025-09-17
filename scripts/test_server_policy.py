@@ -9,7 +9,7 @@ client = websocket_client_policy.WebsocketClientPolicy(host="localhost", port=80
 cam1 = np.random.randint(0, 255, (480, 640, 3), dtype=np.uint8)
 cam2 = np.random.randint(0, 255, (480, 640, 3), dtype=np.uint8)
 cam3 = np.random.randint(0, 255, (480, 640, 3), dtype=np.uint8)
-state = np.random.rand(16)
+state = np.random.rand(14)
 task_instruction = "Pick up the object and place it in the box."
 
 num_steps = int(sys.argv[1])
