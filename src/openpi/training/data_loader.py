@@ -98,6 +98,7 @@ def create_dataset(data_config: _config.DataConfig, model_config: _model.BaseMod
             for key in data_config.action_sequence_keys
         },
         local_files_only=data_config.local_files_only,
+        # episodes=[i for i in range(len(dataset_meta.episodes)) if i not in [136]] # pick bottle of galaxea 0728
         # episodes=[i for i in range(200) if i not in [13,14,37,42,104,107,122,137,145,160,167]] # pick bottle of galaxea 0728
         # episodes=[i for i in range(142) if i not in [69, 82]] # open_cloes_tap_0709
         # episodes=[i for i in range(1656) if i not in [11,102,571,580]] #for paper task 0624

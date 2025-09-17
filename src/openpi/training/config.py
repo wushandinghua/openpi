@@ -837,7 +837,9 @@ _CONFIGS = [
         name="pi0_piper_lora",
         model=pi0.Pi0Config(action_horizon=10, paligemma_variant="gemma_2b_lora", action_expert_variant="gemma_300m_lora"),
         data=LeRobotAirbotDataConfig(
-            repo_id="qbb/gongjianghang_task_0907",
+            #repo_id="qbb/gongjianghang_tasks_0912",
+            #repo_id="qbb/gongjianghang_tasks_0913",
+            repo_id="qbb/pick_up_coke_cup_and_buger_box_0912_15",
             base_config=DataConfig(
                 local_files_only=True,  # Set to True for local-only datasets.
                 prompt_from_task=True,
@@ -846,20 +848,47 @@ _CONFIGS = [
             num_joints=6,  # piper has 6 joints.
         ),
         weight_loader=weight_loaders.CheckpointWeightLoader("s3://openpi-assets/checkpoints/pi0_base/params"),
-        num_train_steps=10_000,
+        num_train_steps=9_000,
         lr_schedule=_optimizer.CosineDecaySchedule(
-            warmup_steps=500,
-            peak_lr=2.5e-5,
-            decay_steps=10_000,
-            decay_lr=2.5e-6
+            warmup_steps=450,
+            peak_lr=3.54e-5,
+            decay_steps=9_000,
+            decay_lr=3.54e-6
         ),
         freeze_filter=pi0.Pi0Config(
             paligemma_variant="gemma_2b_lora", action_expert_variant="gemma_300m_lora"
         ).get_freeze_filter(),
         ema_decay=None,
-        batch_size=32,
-        num_workers=4,
-        fsdp_devices=1,
+        batch_size=64,
+        num_workers=8,
+        fsdp_devices=2,
+        keep_period=2000,
+        checkpoint_base_dir="/data/openpi/checkpoints"
+    ),
+    TrainConfig(
+        name="pi0_piper",
+        model=pi0.Pi0Config(action_horizon=10),
+        data=LeRobotAirbotDataConfig(
+            #repo_id="qbb/throw_objects_0913",
+            repo_id="qbb/pick_up_objects_0916",
+            base_config=DataConfig(
+                local_files_only=True,  # Set to True for local-only datasets.
+                prompt_from_task=True,
+                action_sequence_keys=("action",)
+            ),
+            num_joints=6,  
+        ),
+        weight_loader=weight_loaders.CheckpointWeightLoader("s3://openpi-assets/checkpoints/pi0_base/params"),
+        num_train_steps=9_000,
+        lr_schedule=_optimizer.CosineDecaySchedule(
+            warmup_steps=450,
+            peak_lr=5e-5,
+            decay_steps=9_000,
+            decay_lr=5e-6
+        ),
+        batch_size=128,
+        num_workers=16,
+        fsdp_devices=4,
         keep_period=2000,
         checkpoint_base_dir="/data/openpi/checkpoints"
     ),
