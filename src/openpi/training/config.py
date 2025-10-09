@@ -867,10 +867,11 @@ _CONFIGS = [
     ),
     TrainConfig(
         name="pi0_piper",
-        model=pi0.Pi0Config(action_horizon=10),
+        model=pi0.Pi0Config(action_horizon=20),
         data=LeRobotAirbotDataConfig(
             #repo_id="qbb/throw_objects_0913",
-            repo_id="qbb/pick_up_objects_0916",
+            #repo_id="qbb/pick_up_objects_0916",
+            repo_id="qbb/gongjianghang_tasks_0918",
             base_config=DataConfig(
                 local_files_only=True,  # Set to True for local-only datasets.
                 prompt_from_task=True,
@@ -879,11 +880,11 @@ _CONFIGS = [
             num_joints=6,  
         ),
         weight_loader=weight_loaders.CheckpointWeightLoader("s3://openpi-assets/checkpoints/pi0_base/params"),
-        num_train_steps=9_000,
+        num_train_steps=10_000,
         lr_schedule=_optimizer.CosineDecaySchedule(
-            warmup_steps=450,
+            warmup_steps=500,
             peak_lr=5e-5,
-            decay_steps=9_000,
+            decay_steps=10_000,
             decay_lr=5e-6
         ),
         batch_size=128,
