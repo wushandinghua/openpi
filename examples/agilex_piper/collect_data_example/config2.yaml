@@ -42,34 +42,34 @@ start_arm_joint_position: [
     ]
 ]
 root_path: "data"
-task_name: "task_000_100"
+task_name: "pick_up_coke_cup_0915"
 max_frames: 1200  # Maximum number of frames to process
 num_image_writers_per_camera: 3  # Number of image writers per camera
 fps: 20
 cameras:
     cam1:
-        camera_index: 2
-        fps: 30
+        camera_index: 4
+        fps: 25
         width: 640
         height: 480
         color_mode: "rgb"
-        camera_usb_hardware_index: "usb-0:1.2.2"
+        camera_usb_hardware_index: "usb-3:3.1"
         camera_type: "opencv"
     cam2:
-        camera_index: 4
-        fps: 30
+        camera_index: 6
+        fps: 60
         width: 640
         height: 480
         color_mode: "rgb"
-        camera_usb_hardware_index: "usb-0:1.1:1.3"
+        camera_usb_hardware_index: "usb-2:2.2"
         camera_type: "opencv"
     cam3:
-        camera_index: 6
-        fps: 30
+        camera_index: 2
+        fps: 25
         width: 640
         height: 480
         color_mode: "rgb"
-        camera_usb_hardware_index: "usb-0:1.2.4"
+        camera_usb_hardware_index: "usb-1:1.1"
         camera_type: "opencv"
 
     

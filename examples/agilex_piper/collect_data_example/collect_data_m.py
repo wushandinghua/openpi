@@ -847,6 +847,7 @@ class OpenCVCamera:
 
         如果连接失败，会抛出异常（ValueError 或 OSError），提示用户摄像头是否存在或参数是否设置失败。
         """
+    
 
         # 如果已经连接了，就不允许重复连接
         if self.is_connected:
@@ -1015,6 +1016,7 @@ class OpenCVCamera:
             self.thread = threading.Thread(target=self.read_loop, args=())
             self.thread.daemon = True
             self.thread.start()
+            time.sleep(1)
 
         num_tries = 0
         while self.color_image is None:
@@ -1301,8 +1303,9 @@ class PiperPlay:
         for i, robot in enumerate(self.leader_robot):
             robot.ReqMasterArmMoveToHome(mode=2)
             print(f"leader {i} and follower {i} moved to zero position")
-            time.sleep(1)
+            time.sleep(2)
             robot.ReqMasterArmMoveToHome(mode=0)
+            time.sleep(2)
 
 
     def follower_start(self, leader, follower, delay: float = 0.01):
@@ -1393,8 +1396,10 @@ class PiperPlay:
             # print(f"→ Leader {i} end_position: {leader_robot[i].get_eef_pos()}")
             # print(f"→ Leader {i} pose: {leader_robot[i].get_end_pose()}")
             joints_ctrl_msg = leader_robot[i].GetArmJointCtrl()
-            action_arm_jq.extend(get_joint_positions(joints_ctrl_msg.joint_ctrl))  # 获取各个关节的位置
+            action_arm_jq.extend(get_joint_positions(joints_ctrl_msg.joint_ctrl))
+            # print(f"→ joint_position: {get_joint_positions(joints_ctrl_msg.joint_ctrl)}")  # 获取各个关节的位置
             gripper_ctrl_msg = leader_robot[i].GetArmGripperCtrl()
+            # print(f"→ gripper_position: {get_gripper_position(gripper_ctrl_msg.gripper_ctrl)}") # 打印夹爪状态
             action_eef_jq.append(
                 get_gripper_position(gripper_ctrl_msg.gripper_ctrl)
             )  # 获取夹爪的张开幅度（如果没有夹爪或者夹爪没准备好，返回None）
@@ -1414,8 +1419,10 @@ class PiperPlay:
             # print(f"→ Follower {i} end_position: {follower_robot[i].get_eef_pos()}")
             # print(f"→ Follower {i} pose: {follower_robot[i].get_end_pose()}")
             join_msg = follower_robot[i].GetArmJointMsgs()
-            obs_arm_jq.extend(get_joint_positions(join_msg.joint_state))  # 获取各个关节的位置
+            obs_arm_jq.extend(get_joint_positions(join_msg.joint_state)) 
+            # print(f"→ joint_position: {get_joint_positions(join_msg.joint_state)}") # 获取各个关节的位置
             gripper_msg = follower_robot[i].GetArmGripperMsgs()
+            print(f"→ [{i}]gripper_stats: {get_gripper_position(gripper_msg.gripper_state)}") # 打印夹爪状态
             obs_eef_jq.append(get_gripper_position(gripper_msg.gripper_state))  # 获取夹爪的张开幅度
             pose = [[0] * 3, [0] * 4] #获取末端的空间位姿
             obs_eef_pose.extend(pose[0] + pose[1])
@@ -1475,8 +1482,9 @@ class PiperPlay:
         for i, robot in enumerate(self.leader_robot):
             robot.ReqMasterArmMoveToHome(mode=2)
             print(f"leader {i} and follower {i} moved to zero position")
-            time.sleep(1)
+            time.sleep(2)
             robot.ReqMasterArmMoveToHome(mode=0)
+            time.sleep(2)
         print("Robot exited")
 
     def get_state_mode(self) -> str:
@@ -1617,7 +1625,7 @@ class DataCollecter:
                 observation = (
                     self.robot.capture_observation()
                 )  # TODO: Modify method for get data
-
+            
             # Visualize
             self.visualizer.frame_queue.put(observation)
             self.visualizer.update_info(
@@ -1708,7 +1716,7 @@ if __name__ == "__main__":
     """
 
     # Load configuration from the YAML file
-    with open("config2.yaml") as f:
+    with open("config7.yaml") as f:
         # Load the configuration file using YAML
         config = yaml.load(f, Loader=yaml.FullLoader)
 
